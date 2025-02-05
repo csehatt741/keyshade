@@ -12,17 +12,17 @@ import {
   EventType,
   Integration,
   Project,
-  User,
   Workspace
 } from '@prisma/client'
 import { CreateIntegration } from '../dto/create.integration/create.integration'
 import { UpdateIntegration } from '../dto/update.integration/update.integration'
-import { AuthorityCheckerService } from '@/common/authority-checker.service'
+import { AuthzService } from '@/auth/service/authz.service'
 import IntegrationFactory from '../plugins/factory/integration.factory'
 import { paginate } from '@/common/paginate'
 import generateEntitySlug from '@/common/slug-generator'
 import { createEvent } from '@/common/event'
 import { limitMaxItemsPerPage } from '@/common/util'
+import { AuthenticatedUser } from '@/user/user.types'
 
 @Injectable()
 export class IntegrationService {
@@ -30,7 +30,7 @@ export class IntegrationService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly authorityCheckerService: AuthorityCheckerService
+    private readonly authzService: AuthzService
   ) {}
 
   /**
@@ -58,17 +58,16 @@ export class IntegrationService {
    * @returns The created integration
    */
   async createIntegration(
-    user: User,
+    user: AuthenticatedUser,
     dto: CreateIntegration,
     workspaceSlug: Workspace['slug']
   ) {
     // Check if the user is permitted to create integrations in the workspace
     const workspace =
-      await this.authorityCheckerService.checkAuthorityOverWorkspace({
-        userId: user.id,
+      await this.authzService.authorizeUserAccessToWorkspace({
+        user: user,
         entity: { slug: workspaceSlug },
-        authorities: [Authority.CREATE_INTEGRATION, Authority.READ_WORKSPACE],
-        prisma: this.prisma
+        authorities: [Authority.CREATE_INTEGRATION, Authority.READ_WORKSPACE]
       })
     const workspaceId = workspace.id
 
@@ -80,11 +79,10 @@ export class IntegrationService {
 
     // Check if the user has READ authority over the project
     if (dto.projectSlug) {
-      project = await this.authorityCheckerService.checkAuthorityOverProject({
-        userId: user.id,
+      await this.authzService.authorizeUserAccessToProject({
+        user: user,
         entity: { slug: dto.projectSlug },
-        authorities: [Authority.READ_PROJECT],
-        prisma: this.prisma
+        authorities: [Authority.READ_PROJECT]
       })
     }
 
@@ -98,11 +96,10 @@ export class IntegrationService {
     // Check if the user has READ authority over the environment
     if (dto.environmentSlug) {
       environment =
-        await this.authorityCheckerService.checkAuthorityOverEnvironment({
-          userId: user.id,
+        await this.authzService.authorizeUserAccessToEnvironment({
+          user: user,
           entity: { slug: dto.environmentSlug },
-          authorities: [Authority.READ_ENVIRONMENT],
-          prisma: this.prisma
+          authorities: [Authority.READ_ENVIRONMENT]
         })
     }
 
@@ -174,16 +171,15 @@ export class IntegrationService {
    * @returns The updated integration
    */
   async updateIntegration(
-    user: User,
+    user: AuthenticatedUser,
     dto: UpdateIntegration,
     integrationSlug: Integration['slug']
   ) {
     const integration =
-      await this.authorityCheckerService.checkAuthorityOverIntegration({
-        userId: user.id,
+      await this.authzService.authorizeUserAccessToIntegration({
+        user: user,
         entity: { slug: integrationSlug },
-        authorities: [Authority.UPDATE_INTEGRATION],
-        prisma: this.prisma
+        authorities: [Authority.UPDATE_INTEGRATION]
       })
     const integrationId = integration.id
 
@@ -197,11 +193,10 @@ export class IntegrationService {
 
     // If the project is being changed, check if the user has READ authority over the new project
     if (dto.projectSlug) {
-      project = await this.authorityCheckerService.checkAuthorityOverProject({
-        userId: user.id,
+      await this.authzService.authorizeUserAccessToProject({
+        user: user,
         entity: { slug: dto.projectSlug },
-        authorities: [Authority.READ_PROJECT],
-        prisma: this.prisma
+        authorities: [Authority.READ_PROJECT]
       })
     }
 
@@ -215,11 +210,10 @@ export class IntegrationService {
     // If the environment is being changed, check if the user has READ authority over the new environment
     if (dto.environmentSlug) {
       environment =
-        await this.authorityCheckerService.checkAuthorityOverEnvironment({
-          userId: user.id,
+        await this.authzService.authorizeUserAccessToEnvironment({
+          user: user,
           entity: { slug: dto.environmentSlug },
-          authorities: [Authority.READ_ENVIRONMENT],
-          prisma: this.prisma
+          authorities: [Authority.READ_ENVIRONMENT]
         })
     }
 
@@ -279,12 +273,11 @@ export class IntegrationService {
    * @param integrationSlug The slug of the integration to retrieve
    * @returns The integration with the given slug
    */
-  async getIntegration(user: User, integrationSlug: Integration['slug']) {
-    return this.authorityCheckerService.checkAuthorityOverIntegration({
-      userId: user.id,
+  async getIntegration(user: AuthenticatedUser, integrationSlug: Integration['slug']) {
+    return await this.authzService.authorizeUserAccessToIntegration({
+      user: user,
       entity: { slug: integrationSlug },
-      authorities: [Authority.READ_INTEGRATION],
-      prisma: this.prisma
+      authorities: [Authority.READ_INTEGRATION]
     })
   }
 
@@ -307,7 +300,7 @@ export class IntegrationService {
    * @returns A paginated list of integrations in the workspace
    */
   async getAllIntegrationsOfWorkspace(
-    user: User,
+    user: AuthenticatedUser,
     workspaceSlug: Workspace['slug'],
     page: number,
     limit: number,
@@ -317,11 +310,10 @@ export class IntegrationService {
   ) {
     // Check if the user has READ authority over the workspace
     const workspace =
-      await this.authorityCheckerService.checkAuthorityOverWorkspace({
-        userId: user.id,
+      await this.authzService.authorizeUserAccessToWorkspace({
+        user: user,
         entity: { slug: workspaceSlug },
-        authorities: [Authority.READ_INTEGRATION],
-        prisma: this.prisma
+        authorities: [Authority.READ_INTEGRATION]
       })
     const workspaceId = workspace.id
 
@@ -425,13 +417,12 @@ export class IntegrationService {
    * @param integrationSlug The slug of the integration to delete
    * @returns Nothing
    */
-  async deleteIntegration(user: User, integrationSlug: Integration['slug']) {
+  async deleteIntegration(user: AuthenticatedUser, integrationSlug: Integration['slug']) {
     const integration =
-      await this.authorityCheckerService.checkAuthorityOverIntegration({
-        userId: user.id,
+      await this.authzService.authorizeUserAccessToIntegration({
+        user: user,
         entity: { slug: integrationSlug },
-        authorities: [Authority.DELETE_INTEGRATION],
-        prisma: this.prisma
+        authorities: [Authority.DELETE_INTEGRATION]
       })
     const integrationId = integration.id
 

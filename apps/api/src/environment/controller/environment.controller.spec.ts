@@ -3,7 +3,7 @@ import { EnvironmentController } from './environment.controller'
 import { EnvironmentService } from '../service/environment.service'
 import { PrismaService } from '@/prisma/prisma.service'
 import { mockDeep } from 'jest-mock-extended'
-import { AuthorityCheckerService } from '@/common/authority-checker.service'
+import { AuthorityCheckerService } from '@/auth/service/authority-checker.service'
 import { CommonModule } from '@/common/common.module'
 
 describe('EnvironmentController', () => {

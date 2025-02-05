@@ -3,7 +3,7 @@ import { WorkspaceRoleService } from './workspace-role.service'
 import { PrismaService } from '@/prisma/prisma.service'
 import { MAIL_SERVICE } from '@/mail/services/interface.service'
 import { MockMailService } from '@/mail/services/mock.service'
-import { AuthorityCheckerService } from '@/common/authority-checker.service'
+import { AuthorityCheckerService } from '@/auth/service/authority-checker.service'
 import { CommonModule } from '@/common/common.module'
 
 describe('WorkspaceRoleService', () => {

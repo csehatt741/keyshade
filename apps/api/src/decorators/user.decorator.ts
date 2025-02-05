@@ -1,10 +1,10 @@
-import { UserWithWorkspace } from '@/user/user.types'
+import { AuthenticatedUserWithWorkspace } from '@/user/user.types'
 import { createParamDecorator, ExecutionContext } from '@nestjs/common'
 
 export const CurrentUser = createParamDecorator<
   unknown,
   ExecutionContext,
-  UserWithWorkspace
+  AuthenticatedUserWithWorkspace
 >((_: unknown, ctx: ExecutionContext) => {
   const request = ctx.switchToHttp().getRequest()
   return request.user

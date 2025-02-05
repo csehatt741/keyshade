@@ -1,7 +1,8 @@
 import {
   PrismaClient,
-  Authority,
+  User,
   Workspace,
+  Authority,
   ProjectAccessLevel
 } from '@prisma/client'
 import { VariableWithProjectAndVersion } from '@/variable/variable.types'
@@ -11,75 +12,48 @@ import {
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common'
+import { WorkspaceWithBlacklistedIpAddresses } from '@/workspace/workspace.types'
 import { EnvironmentWithProject } from '@/environment/environment.types'
 import { ProjectWithSecrets } from '@/project/project.types'
 import { SecretWithProjectAndVersion } from '@/secret/secret.types'
-import { CustomLoggerService } from './logger.service'
+import { CustomLoggerService } from '../../common/logger.service'
 import {
   getCollectiveEnvironmentAuthorities,
   getCollectiveProjectAuthorities,
   getCollectiveWorkspaceAuthorities
-} from './collective-authorities'
+} from '../../common/collective-authorities'
 import { IntegrationWithWorkspace } from '@/integration/integration.types'
-
-export interface AuthorityInput {
-  userId: string
-  authorities: Authority[]
-  prisma: PrismaClient
-  entity: { slug?: string; name?: string }
-}
+import { AuthorizationParams } from './authz.types'
 
 @Injectable()
 export class AuthorityCheckerService {
-  constructor(private customLoggerService: CustomLoggerService) {}
+  constructor(
+    private readonly prisma: PrismaClient,
+    private readonly customLoggerService: CustomLoggerService) {}
 
   /**
    * Checks if the user has the required authorities to access the given workspace.
    *
-   * @param input The input object containing the userId, entity, authorities, and prisma client
+   * @param params The input object containing the user, entity, authorities
    * @returns The workspace if the user has the required authorities
    * @throws InternalServerErrorException if there's an error when communicating with the database
    * @throws NotFoundException if the workspace is not found
    * @throws UnauthorizedException if the user does not have the required authorities
    */
   public async checkAuthorityOverWorkspace(
-    input: AuthorityInput
-  ): Promise<Workspace> {
-    const { userId, entity, authorities, prisma } = input
+    params: AuthorizationParams
+  ): Promise<WorkspaceWithBlacklistedIpAddresses> {
+    const { user, entity, authorities } = params
 
-    let workspace: Workspace
-
-    try {
-      if (entity.slug) {
-        workspace = await prisma.workspace.findUnique({
-          where: {
-            slug: entity.slug
-          }
-        })
-      } else {
-        workspace = await prisma.workspace.findFirst({
-          where: {
-            name: entity.name,
-            members: { some: { userId: userId } }
-          }
-        })
-      }
-    } catch (error) {
-      this.customLoggerService.error(error)
-      throw new InternalServerErrorException(error)
-    }
-
-    if (!workspace) {
-      throw new NotFoundException(`Workspace ${entity.slug} not found`)
-    }
+    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(user.id, { workspaceSlug: entity.slug, workspaceName: entity.name });
 
     const permittedAuthorities = await getCollectiveWorkspaceAuthorities(
       workspace.id,
-      userId,
-      prisma
+      user.id,
+      this.prisma
     )
 
-    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, userId)
+    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, user.id)
 
     return workspace
   }
@@ -87,22 +61,22 @@ export class AuthorityCheckerService {
   /**
    * Checks if the user has the required authorities to access the given project.
    *
-   * @param input The input object containing the userId, entity, authorities, and prisma client
+   * @param params The input object containing the user, entity, authorities
    * @returns The project if the user has the required authorities
    * @throws InternalServerErrorException if there's an error when communicating with the database
    * @throws NotFoundException if the project is not found
    * @throws UnauthorizedException if the user does not have the required authorities
    */
   public async checkAuthorityOverProject(
-    input: AuthorityInput
-  ): Promise<ProjectWithSecrets> {
-    const { userId, entity, authorities, prisma } = input
+    params: AuthorizationParams
+  ): Promise<{project: ProjectWithSecrets, workspace: WorkspaceWithBlacklistedIpAddresses}> {
+    const { user, entity, authorities } = params
 
     let project: ProjectWithSecrets
 
     try {
       if (entity.slug) {
-        project = await prisma.project.findUnique({
+        project = await this.prisma.project.findUnique({
           where: {
             slug: entity.slug
           },
@@ -111,10 +85,10 @@ export class AuthorityCheckerService {
           }
         })
       } else {
-        project = await prisma.project.findFirst({
+        project = await this.prisma.project.findFirst({
           where: {
             name: entity.name,
-            workspace: { members: { some: { userId: userId } } }
+            workspace: { members: { some: { userId: user.id } } }
           },
           include: {
             secrets: true
@@ -131,13 +105,13 @@ export class AuthorityCheckerService {
     }
 
     const permittedAuthoritiesForProject: Set<Authority> =
-      await getCollectiveProjectAuthorities(userId, project, prisma)
+      await getCollectiveProjectAuthorities(user.id, project, this.prisma)
 
     const permittedAuthoritiesForWorkspace: Set<Authority> =
       await getCollectiveWorkspaceAuthorities(
         project.workspaceId,
-        userId,
-        prisma
+        user.id,
+        this.prisma
       )
 
     const projectAccessLevel = project.accessLevel
@@ -153,7 +127,7 @@ export class AuthorityCheckerService {
           this.checkHasPermissionOverEntity(
             permittedAuthoritiesForWorkspace,
             authorities,
-            userId
+            user.id
           )
         }
         break
@@ -161,40 +135,42 @@ export class AuthorityCheckerService {
         this.checkHasPermissionOverEntity(
           permittedAuthoritiesForWorkspace,
           authorities,
-          userId
+          user.id
         )
         break
       case ProjectAccessLevel.PRIVATE:
         this.checkHasPermissionOverEntity(
           permittedAuthoritiesForProject,
           authorities,
-          userId
+          user.id
         )
         break
     }
 
-    return project
+    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(user.id, { workspaceId: project.workspaceId });
+
+    return { project, workspace }
   }
 
   /**
    * Checks if the user has the required authorities to access the given environment.
    *
-   * @param input The input object containing the userId, entity, authorities, and prisma client
+   * @param params The input object containing the user, entity, authorities
    * @returns The environment if the user has the required authorities
    * @throws InternalServerErrorException if there's an error when communicating with the database
    * @throws NotFoundException if the environment is not found
    * @throws UnauthorizedException if the user does not have the required authorities
    */
   public async checkAuthorityOverEnvironment(
-    input: AuthorityInput
-  ): Promise<EnvironmentWithProject> {
-    const { userId, entity, authorities, prisma } = input
+    params: AuthorizationParams
+  ): Promise<{ environment: EnvironmentWithProject, workspace: WorkspaceWithBlacklistedIpAddresses }> {
+    const { user, entity, authorities } = params
 
     let environment: EnvironmentWithProject
 
     try {
       if (entity.slug) {
-        environment = await prisma.environment.findUnique({
+        environment = await this.prisma.environment.findUnique({
           where: {
             slug: entity.slug
           },
@@ -203,10 +179,10 @@ export class AuthorityCheckerService {
           }
         })
       } else {
-        environment = await prisma.environment.findFirst({
+        environment = await this.prisma.environment.findFirst({
           where: {
             name: entity.name,
-            project: { workspace: { members: { some: { userId: userId } } } }
+            project: { workspace: { members: { some: { userId: user.id } } } }
           },
           include: {
             project: true
@@ -223,35 +199,37 @@ export class AuthorityCheckerService {
     }
 
     const permittedAuthorities = await getCollectiveEnvironmentAuthorities(
-      userId,
+      user.id,
       environment,
-      prisma
+      this.prisma
     )
 
-    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, userId)
+    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, user.id)
 
-    return environment
+    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(user.id, { workspaceId: environment.project.workspaceId });
+
+    return { environment, workspace }
   }
 
   /**
    * Checks if the user has the required authorities to access the given variable.
    *
-   * @param input The input object containing the userId, entity, authorities, and prisma client
+   * @param params The input object containing the user, entity, authorities
    * @returns The variable if the user has the required authorities
    * @throws InternalServerErrorException if there's an error when communicating with the database
    * @throws NotFoundException if the variable is not found
    * @throws UnauthorizedException if the user does not have the required authorities
    */
   public async checkAuthorityOverVariable(
-    input: AuthorityInput
-  ): Promise<VariableWithProjectAndVersion> {
-    const { userId, entity, authorities, prisma } = input
+    params: AuthorizationParams
+  ): Promise<{ variable: VariableWithProjectAndVersion, workspace: WorkspaceWithBlacklistedIpAddresses }> {
+    const { user, entity, authorities } = params
 
     let variable: VariableWithProjectAndVersion
 
     try {
       if (entity.slug) {
-        variable = await prisma.variable.findUnique({
+        variable = await this.prisma.variable.findUnique({
           where: {
             slug: entity.slug
           },
@@ -261,10 +239,10 @@ export class AuthorityCheckerService {
           }
         })
       } else {
-        variable = await prisma.variable.findFirst({
+        variable = await this.prisma.variable.findFirst({
           where: {
             name: entity.name,
-            project: { workspace: { members: { some: { userId: userId } } } }
+            project: { workspace: { members: { some: { userId: user.id } } } }
           },
           include: {
             versions: true,
@@ -282,35 +260,37 @@ export class AuthorityCheckerService {
     }
 
     const permittedAuthorities = await getCollectiveProjectAuthorities(
-      userId,
+      user.id,
       variable.project,
-      prisma
+      this.prisma
     )
 
-    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, userId)
+    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, user.id)
 
-    return variable
+    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(user.id, { workspaceId: variable.project.workspaceId });
+
+    return { variable, workspace }
   }
 
   /**
    * Checks if the user has the required authorities to access the given secret.
    *
-   * @param input The input object containing the userId, entity, authorities, and prisma client
+   * @param params The input object containing the user, entity, authorities
    * @returns The secret if the user has the required authorities
    * @throws InternalServerErrorException if there's an error when communicating with the database
    * @throws NotFoundException if the secret is not found
    * @throws UnauthorizedException if the user does not have the required authorities
    */
   public async checkAuthorityOverSecret(
-    input: AuthorityInput
-  ): Promise<SecretWithProjectAndVersion> {
-    const { userId, entity, authorities, prisma } = input
+    params: AuthorizationParams
+  ): Promise<{ secret: SecretWithProjectAndVersion, workspace: WorkspaceWithBlacklistedIpAddresses }> {
+    const { user, entity, authorities } = params
 
     let secret: SecretWithProjectAndVersion
 
     try {
       if (entity.slug) {
-        secret = await prisma.secret.findUnique({
+        secret = await this.prisma.secret.findUnique({
           where: {
             slug: entity.slug
           },
@@ -320,10 +300,10 @@ export class AuthorityCheckerService {
           }
         })
       } else {
-        secret = await prisma.secret.findFirst({
+        secret = await this.prisma.secret.findFirst({
           where: {
             name: entity.name,
-            project: { workspace: { members: { some: { userId: userId } } } }
+            project: { workspace: { members: { some: { userId: user.id } } } }
           },
           include: {
             versions: true,
@@ -341,35 +321,37 @@ export class AuthorityCheckerService {
     }
 
     const permittedAuthorities = await getCollectiveProjectAuthorities(
-      userId,
+      user.id,
       secret.project,
-      prisma
+      this.prisma
     )
 
-    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, userId)
+    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, user.id)
 
-    return secret
+    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(user.id, { workspaceId: secret.project.workspaceId });
+
+    return { secret, workspace }
   }
 
   /**
    * Checks if the user has the required authorities to access the given integration.
    *
-   * @param input The input object containing the userId, entity, authorities, and prisma client
+   * @param params The input object containing the user, entity, authorities
    * @returns The integration if the user has the required authorities
    * @throws InternalServerErrorException if there's an error when communicating with the database
    * @throws NotFoundException if the integration is not found
    * @throws UnauthorizedException if the user does not have the required authorities
    */
   public async checkAuthorityOverIntegration(
-    input: AuthorityInput
-  ): Promise<IntegrationWithWorkspace> {
-    const { userId, entity, authorities, prisma } = input
+    params: AuthorizationParams
+  ): Promise<{ integration: IntegrationWithWorkspace, workspace: WorkspaceWithBlacklistedIpAddresses }> {
+    const { user, entity, authorities } = params
 
     let integration: IntegrationWithWorkspace | null
 
     try {
       if (entity.slug) {
-        integration = await prisma.integration.findUnique({
+        integration = await this.prisma.integration.findUnique({
           where: {
             slug: entity.slug
           },
@@ -378,10 +360,10 @@ export class AuthorityCheckerService {
           }
         })
       } else {
-        integration = await prisma.integration.findFirst({
+        integration = await this.prisma.integration.findFirst({
           where: {
             name: entity.name,
-            workspace: { members: { some: { userId: userId } } }
+            workspace: { members: { some: { userId: user.id } } }
           },
           include: {
             workspace: true
@@ -399,14 +381,14 @@ export class AuthorityCheckerService {
 
     const permittedAuthorities = await getCollectiveWorkspaceAuthorities(
       integration.workspaceId,
-      userId,
-      prisma
+      user.id,
+      this.prisma
     )
 
-    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, userId)
+    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, user.id)
 
     if (integration.projectId) {
-      const project = await prisma.project.findUnique({
+      const project = await this.prisma.project.findUnique({
         where: {
           id: integration.projectId
         }
@@ -419,15 +401,74 @@ export class AuthorityCheckerService {
       }
 
       const projectAuthorities = await getCollectiveProjectAuthorities(
-        userId,
+        user.id,
         project,
-        prisma
+        this.prisma
       )
 
-      this.checkHasPermissionOverEntity(projectAuthorities, authorities, userId)
+      this.checkHasPermissionOverEntity(projectAuthorities, authorities, user.id)
     }
 
-    return integration
+    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(user.id, { workspaceId: integration.workspaceId });
+
+    return { integration, workspace }
+  }
+
+  /**
+   * Fetches the requested workspace specified by userId and the filter.
+   * @param userId The id of the user
+   * @param filter The filter optionally including the workspace id, slug or name
+   * @returns The requested workspace
+   * @throws InternalServerErrorException if there's an error when communicating with the database
+   * @throws NotFoundException if the workspace is not found
+   */
+  private async getWorkspaceWithBlacklistedIpAddresses(
+    userId: User['id'],
+    filter: { workspaceId?: Workspace['id']; workspaceSlug?: Workspace['slug']; workspaceName?: Workspace['name'] }
+  ) : Promise<WorkspaceWithBlacklistedIpAddresses> {
+    let workspace: WorkspaceWithBlacklistedIpAddresses;
+
+    try {
+      if (filter.workspaceId) {
+        workspace = await this.prisma.workspace.findUnique({
+          where: {
+            id: filter.workspaceId
+          },
+          include: {
+            blacklistedIpAddresses: true
+          }
+        })
+      }
+      else if (filter.workspaceSlug) {
+        workspace = await this.prisma.workspace.findUnique({
+          where: {
+            slug: filter.workspaceSlug
+          },
+          include: {
+            blacklistedIpAddresses: true
+          }
+        })
+      } else if (filter.workspaceName) {
+        workspace = await this.prisma.workspace.findFirst({
+          where: {
+            name: filter.workspaceName,
+            members: { some: { userId: userId } }
+          },
+          include: {
+            blacklistedIpAddresses: true
+          }
+        })
+      }      
+    } catch (error) {
+      this.customLoggerService.error(error)
+      throw new InternalServerErrorException(error)
+    }
+
+    if (!workspace) {
+      throw new NotFoundException(`Workspace ${filter.workspaceId ?? filter.workspaceSlug ?? filter.workspaceName} not found`)
+    }
+
+    return workspace
   }
 
   /**

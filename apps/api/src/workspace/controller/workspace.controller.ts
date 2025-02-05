@@ -10,10 +10,11 @@ import {
 } from '@nestjs/common'
 import { WorkspaceService } from '../service/workspace.service'
 import { CurrentUser } from '@/decorators/user.decorator'
-import { Authority, User, Workspace } from '@prisma/client'
+import { Authority, Workspace } from '@prisma/client'
 import { CreateWorkspace } from '../dto/create.workspace/create.workspace'
 import { UpdateWorkspace } from '../dto/update.workspace/update.workspace'
 import { RequiredApiKeyAuthorities } from '@/decorators/required-api-key-authorities.decorator'
+import { AuthenticatedUser } from '@/user/user.types'
 
 @Controller('workspace')
 export class WorkspaceController {
@@ -21,14 +22,17 @@ export class WorkspaceController {
 
   @Post()
   @RequiredApiKeyAuthorities(Authority.CREATE_WORKSPACE)
-  async create(@CurrentUser() user: User, @Body() dto: CreateWorkspace) {
+  async create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateWorkspace
+  ) {
     return this.workspaceService.createWorkspace(user, dto)
   }
 
   @Put(':workspaceSlug')
   @RequiredApiKeyAuthorities(Authority.UPDATE_WORKSPACE)
   async update(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Param('workspaceSlug') workspaceSlug: Workspace['slug'],
     @Body() dto: UpdateWorkspace
   ) {
@@ -38,7 +42,7 @@ export class WorkspaceController {
   @Delete(':workspaceSlug')
   @RequiredApiKeyAuthorities(Authority.DELETE_WORKSPACE)
   async delete(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Param('workspaceSlug') workspaceSlug: Workspace['slug']
   ) {
     return this.workspaceService.deleteWorkspace(user, workspaceSlug)
@@ -47,7 +51,7 @@ export class WorkspaceController {
   @Get('invitations')
   @RequiredApiKeyAuthorities(Authority.READ_WORKSPACE)
   async getAllInvitationsOfUser(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Query('page') page: number = 0,
     @Query('limit') limit: number = 10,
     @Query('sort') sort: string = 'name',
@@ -67,7 +71,7 @@ export class WorkspaceController {
   @Get(':workspaceSlug')
   @RequiredApiKeyAuthorities(Authority.READ_WORKSPACE)
   async getWorkspace(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Param('workspaceSlug') workspaceSlug: Workspace['slug']
   ) {
     return this.workspaceService.getWorkspaceBySlug(user, workspaceSlug)
@@ -76,7 +80,7 @@ export class WorkspaceController {
   @Get(':workspaceSlug/export-data')
   @RequiredApiKeyAuthorities(Authority.WORKSPACE_ADMIN)
   async exportData(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Param('workspaceSlug') workspaceSlug: Workspace['slug']
   ) {
     return this.workspaceService.exportData(user, workspaceSlug)
@@ -85,7 +89,7 @@ export class WorkspaceController {
   @Get()
   @RequiredApiKeyAuthorities(Authority.READ_WORKSPACE)
   async getAllWorkspacesOfUser(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Query('page') page: number = 0,
     @Query('limit') limit: number = 10,
     @Query('sort') sort: string = 'name',
@@ -111,7 +115,7 @@ export class WorkspaceController {
     Authority.READ_PROJECT
   )
   async globalSearch(
-    @CurrentUser() user: User,
+    @CurrentUser() user: AuthenticatedUser,
     @Param('workspaceSlug') workspaceSlug: Workspace['slug'],
     @Param('searchTerm') searchTerm: string
   ) {

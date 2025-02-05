@@ -7,7 +7,7 @@ import { REDIS_CLIENT } from '@/provider/redis.provider'
 import { RedisClientType } from 'redis'
 import { mockDeep } from 'jest-mock-extended'
 import { ProviderModule } from '@/provider/provider.module'
-import { AuthorityCheckerService } from '@/common/authority-checker.service'
+import { AuthorityCheckerService } from '@/auth/service/authority-checker.service'
 import { CommonModule } from '@/common/common.module'
 
 describe('VariableService', () => {

@@ -1,8 +1,8 @@
-import { AuthorityCheckerService } from '@/common/authority-checker.service'
 import { paginate } from '@/common/paginate'
 import { createUser, getUserByEmailOrId } from '@/common/user'
 import { IMailService, MAIL_SERVICE } from '@/mail/services/interface.service'
 import { PrismaService } from '@/prisma/prisma.service'
+import { AuthzService } from '@/auth/service/authz.service'
 import {
   BadRequestException,
   ConflictException,
@@ -25,9 +25,9 @@ import {
 } from '@prisma/client'
 import { v4 } from 'uuid'
 import { CreateWorkspaceMember } from '../dto/create.workspace/create.workspace-membership'
-
 import { createEvent } from '@/common/event'
 import { limitMaxItemsPerPage } from '@/common/util'
+import { AuthenticatedUser } from '@/user/user.types'
 
 @Injectable()
 export class WorkspaceMembershipService {
@@ -35,9 +35,9 @@ export class WorkspaceMembershipService {
 
   constructor(
     private readonly prisma: PrismaService,
+    private readonly authzService: AuthzService,
     private readonly jwt: JwtService,
-    @Inject(MAIL_SERVICE) private readonly mailService: IMailService,
-    private readonly authorityCheckerService: AuthorityCheckerService
+    @Inject(MAIL_SERVICE) private readonly mailService: IMailService
   ) {}
 
   /**
@@ -51,17 +51,15 @@ export class WorkspaceMembershipService {
    * @throws InternalServerErrorException if there is an error in the transaction
    */
   async transferOwnership(
-    user: User,
+    user: AuthenticatedUser,
     workspaceSlug: Workspace['slug'],
     otherUserEmail: User['email']
   ): Promise<void> {
     const workspace =
-      await this.authorityCheckerService.checkAuthorityOverWorkspace({
-        userId: user.id,
+      await this.authzService.authorizeUserAccessToWorkspace({
+        user: user,
         entity: { slug: workspaceSlug },
-        authorities: [Authority.WORKSPACE_ADMIN],
-
-        prisma: this.prisma
+        authorities: [Authority.WORKSPACE_ADMIN]
       })
 
     const otherUser = await getUserByEmailOrId(otherUserEmail, this.prisma)
@@ -192,16 +190,15 @@ export class WorkspaceMembershipService {
    * @throws InternalServerErrorException if there is an error in the transaction
    */
   async inviteUsersToWorkspace(
-    user: User,
+    user: AuthenticatedUser,
     workspaceSlug: Workspace['slug'],
     members: CreateWorkspaceMember[]
   ): Promise<void> {
     const workspace =
-      await this.authorityCheckerService.checkAuthorityOverWorkspace({
-        userId: user.id,
+      await this.authzService.authorizeUserAccessToWorkspace({
+        user: user,
         entity: { slug: workspaceSlug },
-        authorities: [Authority.ADD_USER],
-        prisma: this.prisma
+        authorities: [Authority.ADD_USER]
       })
 
     // Add users to the workspace if any
@@ -248,16 +245,15 @@ export class WorkspaceMembershipService {
    * @throws InternalServerErrorException if there is an error in the transaction
    */
   async removeUsersFromWorkspace(
-    user: User,
+    user: AuthenticatedUser,
     workspaceSlug: Workspace['slug'],
     userEmails: User['email'][]
   ): Promise<void> {
     const workspace =
-      await this.authorityCheckerService.checkAuthorityOverWorkspace({
-        userId: user.id,
+      await this.authzService.authorizeUserAccessToWorkspace({
+        user: user,
         entity: { slug: workspaceSlug },
-        authorities: [Authority.REMOVE_USER],
-        prisma: this.prisma
+        authorities: [Authority.REMOVE_USER]
       })
 
     const userIds = await this.prisma.user
@@ -337,7 +333,7 @@ export class WorkspaceMembershipService {
    * @param roleSlugs The slugs of the roles to assign to the user
    */
   async updateMemberRoles(
-    user: User,
+    user: AuthenticatedUser,
     workspaceSlug: Workspace['slug'],
     otherUserEmail: User['email'],
     roleSlugs: WorkspaceRole['slug'][]
@@ -345,11 +341,10 @@ export class WorkspaceMembershipService {
     const otherUser = await getUserByEmailOrId(otherUserEmail, this.prisma)
 
     const workspace =
-      await this.authorityCheckerService.checkAuthorityOverWorkspace({
-        userId: user.id,
+      await this.authzService.authorizeUserAccessToWorkspace({
+        user: user,
         entity: { slug: workspaceSlug },
-        authorities: [Authority.UPDATE_USER_ROLE],
-        prisma: this.prisma
+        authorities: [Authority.UPDATE_USER_ROLE]
       })
 
     if (!roleSlugs || roleSlugs.length === 0) {
@@ -454,7 +449,7 @@ export class WorkspaceMembershipService {
    * @returns The members of the workspace, paginated, with metadata
    */
   async getAllMembersOfWorkspace(
-    user: User,
+    user: AuthenticatedUser,
     workspaceSlug: Workspace['slug'],
     page: number,
     limit: number,
@@ -463,11 +458,10 @@ export class WorkspaceMembershipService {
     search: string
   ) {
     const workspace =
-      await this.authorityCheckerService.checkAuthorityOverWorkspace({
-        userId: user.id,
+      await this.authzService.authorizeUserAccessToWorkspace({
+        user: user,
         entity: { slug: workspaceSlug },
-        authorities: [Authority.READ_USERS],
-        prisma: this.prisma
+        authorities: [Authority.READ_USERS]
       })
     //get all members of workspace for page with limit
     const items = await this.prisma.workspaceMember.findMany({
@@ -566,7 +560,7 @@ export class WorkspaceMembershipService {
    * @throws InternalServerErrorException if there is an error in the transaction
    */
   async acceptInvitation(
-    user: User,
+    user: AuthenticatedUser,
     workspaceSlug: Workspace['slug']
   ): Promise<void> {
     // Check if the user has a pending invitation to the workspace
@@ -621,18 +615,17 @@ export class WorkspaceMembershipService {
    * @throws InternalServerErrorException if there is an error in the transaction
    */
   async cancelInvitation(
-    user: User,
+    user: AuthenticatedUser,
     workspaceSlug: Workspace['slug'],
     inviteeEmail: User['email']
   ): Promise<void> {
     const inviteeUser = await getUserByEmailOrId(inviteeEmail, this.prisma)
 
     const workspace =
-      await this.authorityCheckerService.checkAuthorityOverWorkspace({
-        userId: user.id,
+      await this.authzService.authorizeUserAccessToWorkspace({
+        user: user,
         entity: { slug: workspaceSlug },
-        authorities: [Authority.REMOVE_USER],
-        prisma: this.prisma
+        authorities: [Authority.REMOVE_USER]
       })
 
     // Check if the user has a pending invitation to the workspace
@@ -671,7 +664,7 @@ export class WorkspaceMembershipService {
    * @throws InternalServerErrorException if there is an error in the transaction
    */
   async declineInvitation(
-    user: User,
+    user: AuthenticatedUser,
     workspaceSlug: Workspace['slug']
   ): Promise<void> {
     // Check if the user has a pending invitation to the workspace
@@ -713,15 +706,14 @@ export class WorkspaceMembershipService {
    * @param workspaceSlug The slug of the workspace to leave
    */
   async leaveWorkspace(
-    user: User,
+    user: AuthenticatedUser,
     workspaceSlug: Workspace['slug']
   ): Promise<void> {
     const workspace =
-      await this.authorityCheckerService.checkAuthorityOverWorkspace({
-        userId: user.id,
+      await this.authzService.authorizeUserAccessToWorkspace({
+        user: user,
         entity: { slug: workspaceSlug },
-        authorities: [Authority.READ_WORKSPACE],
-        prisma: this.prisma
+        authorities: [Authority.READ_WORKSPACE]
       })
 
     const workspaceOwnerId = await this.prisma.workspace
@@ -772,7 +764,7 @@ export class WorkspaceMembershipService {
    * @returns True if the user is a member of the workspace, false otherwise
    */
   async isUserMemberOfWorkspace(
-    user: User,
+    user: AuthenticatedUser,
     workspaceSlug: Workspace['slug'],
     otherUserEmail: User['email']
   ): Promise<boolean> {
@@ -785,11 +777,10 @@ export class WorkspaceMembershipService {
     }
 
     const workspace =
-      await this.authorityCheckerService.checkAuthorityOverWorkspace({
-        userId: user.id,
+      await this.authzService.authorizeUserAccessToWorkspace({
+        user: user,
         entity: { slug: workspaceSlug },
-        authorities: [Authority.READ_USERS],
-        prisma: this.prisma
+        authorities: [Authority.READ_USERS]
       })
 
     return await this.memberExistsInWorkspace(workspace.id, otherUser.id)
@@ -826,7 +817,7 @@ export class WorkspaceMembershipService {
    */
   private async addMembersToWorkspace(
     workspace: Workspace,
-    currentUser: User,
+    currentUser: AuthenticatedUser,
     members: CreateWorkspaceMember[]
   ) {
     const workspaceAdminRole = await this.getWorkspaceAdminRole(workspace.id)
@@ -1031,7 +1022,7 @@ export class WorkspaceMembershipService {
           workspace: {
             slug: workspaceSlug
           },
-          userId: user.id,
+          user: user,
           invitationAccepted: false
         }
       })
