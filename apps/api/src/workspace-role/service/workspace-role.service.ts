@@ -59,12 +59,11 @@ export class WorkspaceRoleService {
       )
     }
 
-    const workspace =
-      await this.authzService.authorizeUserAccessToWorkspace({
-        user: user,
-        entity: { slug: workspaceSlug },
-        authorities: [Authority.CREATE_WORKSPACE_ROLE]
-      })
+    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+      user: user,
+      entity: { slug: workspaceSlug },
+      authorities: [Authority.CREATE_WORKSPACE_ROLE]
+    })
     const workspaceId = workspace.id
 
     if (await this.checkWorkspaceRoleExists(user, workspaceSlug, dto.name)) {
@@ -141,15 +140,13 @@ export class WorkspaceRoleService {
             // Check if the user has read authority over all the environments
             for (const environmentSlug of pe.environmentSlugs) {
               try {
-                await this.authzService.authorizeUserAccessToEnvironment(
-                  {
-                    user: user,
-                    entity: {
-                      slug: environmentSlug
-                    },
-                    authorities: [Authority.READ_ENVIRONMENT]
-                  }
-                )
+                await this.authzService.authorizeUserAccessToEnvironment({
+                  user: user,
+                  entity: {
+                    slug: environmentSlug
+                  },
+                  authorities: [Authority.READ_ENVIRONMENT]
+                })
               } catch {
                 throw new UnauthorizedException(
                   `User does not have read authority over environment ${environmentSlug}`
@@ -324,15 +321,13 @@ export class WorkspaceRoleService {
             // Check if the user has read authority over all the environments
             for (const environmentSlug of pe.environmentSlugs) {
               try {
-                await this.authzService.authorizeUserAccessToEnvironment(
-                  {
-                    user: user,
-                    entity: {
-                      slug: environmentSlug
-                    },
-                    authorities: [Authority.READ_ENVIRONMENT]
-                  }
-                )
+                await this.authzService.authorizeUserAccessToEnvironment({
+                  user: user,
+                  entity: {
+                    slug: environmentSlug
+                  },
+                  authorities: [Authority.READ_ENVIRONMENT]
+                })
               } catch {
                 throw new UnauthorizedException(
                   `User does not have update authority over environment ${environmentSlug}`
@@ -488,12 +483,11 @@ export class WorkspaceRoleService {
     workspaceSlug: Workspace['slug'],
     name: string
   ) {
-    const workspace =
-      await this.authzService.authorizeUserAccessToWorkspace({
-        user: user,
-        entity: { slug: workspaceSlug },
-        authorities: [Authority.READ_WORKSPACE_ROLE]
-      })
+    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+      user: user,
+      entity: { slug: workspaceSlug },
+      authorities: [Authority.READ_WORKSPACE_ROLE]
+    })
     const workspaceId = workspace.id
 
     return (

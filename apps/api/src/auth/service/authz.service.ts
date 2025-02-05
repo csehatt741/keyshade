@@ -1,21 +1,18 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { AuthorityCheckerService } from './authority-checker.service';
-import {
-  Workspace,
-  IpAddress
-} from '@prisma/client'
+import { ForbiddenException, Injectable } from '@nestjs/common'
+import { AuthorityCheckerService } from './authority-checker.service'
+import { Workspace, IpAddress } from '@prisma/client'
 import { ProjectWithSecrets } from '@/project/project.types'
-import { EnvironmentWithProject } from '@/environment/environment.types';
-import { VariableWithProjectAndVersion } from '@/variable/variable.types';
-import { SecretWithProjectAndVersion } from '@/secret/secret.types';
-import { IntegrationWithWorkspace } from '@/integration/integration.types';
-import { AuthorizationParams } from './authz.types';
-import { AuthenticatedUser } from '@/user/user.types';
+import { EnvironmentWithProject } from '@/environment/environment.types'
+import { VariableWithProjectAndVersion } from '@/variable/variable.types'
+import { SecretWithProjectAndVersion } from '@/secret/secret.types'
+import { IntegrationWithWorkspace } from '@/integration/integration.types'
+import { AuthorizationParams } from './authz.types'
+import { AuthenticatedUser } from '@/user/user.types'
 
 @Injectable()
 export class AuthzService {
   constructor(
-      private readonly authorityCheckerService: AuthorityCheckerService
+    private readonly authorityCheckerService: AuthorityCheckerService
   ) {}
 
   /**
@@ -28,11 +25,15 @@ export class AuthzService {
    * @throws ForbiddenException if the user is not authorized to access the workspace
    */
   public async authorizeUserAccessToWorkspace(
-      params: AuthorizationParams
-    ): Promise<Workspace> {
-    const workspace = await this.authorityCheckerService.checkAuthorityOverWorkspace(params)
+    params: AuthorizationParams
+  ): Promise<Workspace> {
+    const workspace =
+      await this.authorityCheckerService.checkAuthorityOverWorkspace(params)
 
-    this.checkUserHasAccessToWorkspace(params.user, workspace.blacklistedIpAddresses);
+    this.checkUserHasAccessToWorkspace(
+      params.user,
+      workspace.blacklistedIpAddresses
+    )
 
     return workspace
   }
@@ -49,12 +50,16 @@ export class AuthzService {
   public async authorizeUserAccessToProject(
     params: AuthorizationParams
   ): Promise<ProjectWithSecrets> {
-  const result = await this.authorityCheckerService.checkAuthorityOverProject(params)
+    const result =
+      await this.authorityCheckerService.checkAuthorityOverProject(params)
 
-  this.checkUserHasAccessToWorkspace(params.user, result.workspace.blacklistedIpAddresses);
+    this.checkUserHasAccessToWorkspace(
+      params.user,
+      result.workspace.blacklistedIpAddresses
+    )
 
-  return result.project
-}
+    return result.project
+  }
 
   /**
    * Checks if the user is authorized to access the given environment.
@@ -68,12 +73,16 @@ export class AuthzService {
   public async authorizeUserAccessToEnvironment(
     params: AuthorizationParams
   ): Promise<EnvironmentWithProject> {
-  const result = await this.authorityCheckerService.checkAuthorityOverEnvironment(params)
+    const result =
+      await this.authorityCheckerService.checkAuthorityOverEnvironment(params)
 
-  this.checkUserHasAccessToWorkspace(params.user, result.workspace.blacklistedIpAddresses);
+    this.checkUserHasAccessToWorkspace(
+      params.user,
+      result.workspace.blacklistedIpAddresses
+    )
 
-  return result.environment
-}
+    return result.environment
+  }
 
   /**
    * Checks if the user is authorized to access the given variable.
@@ -87,12 +96,16 @@ export class AuthzService {
   public async authorizeUserAccessToVariable(
     params: AuthorizationParams
   ): Promise<VariableWithProjectAndVersion> {
-  const result = await this.authorityCheckerService.checkAuthorityOverVariable(params)
+    const result =
+      await this.authorityCheckerService.checkAuthorityOverVariable(params)
 
-  this.checkUserHasAccessToWorkspace(params.user, result.workspace.blacklistedIpAddresses);
+    this.checkUserHasAccessToWorkspace(
+      params.user,
+      result.workspace.blacklistedIpAddresses
+    )
 
-  return result.variable
-}
+    return result.variable
+  }
 
   /**
    * Checks if the user is authorized to access the given secret.
@@ -106,9 +119,13 @@ export class AuthzService {
   public async authorizeUserAccessToSecret(
     params: AuthorizationParams
   ): Promise<SecretWithProjectAndVersion> {
-    const result = await this.authorityCheckerService.checkAuthorityOverSecret(params)
+    const result =
+      await this.authorityCheckerService.checkAuthorityOverSecret(params)
 
-    this.checkUserHasAccessToWorkspace(params.user, result.workspace.blacklistedIpAddresses);
+    this.checkUserHasAccessToWorkspace(
+      params.user,
+      result.workspace.blacklistedIpAddresses
+    )
 
     return result.secret
   }
@@ -125,16 +142,29 @@ export class AuthzService {
   public async authorizeUserAccessToIntegration(
     params: AuthorizationParams
   ): Promise<IntegrationWithWorkspace> {
-    const result = await this.authorityCheckerService.checkAuthorityOverIntegration(params)
+    const result =
+      await this.authorityCheckerService.checkAuthorityOverIntegration(params)
 
-    this.checkUserHasAccessToWorkspace(params.user, result.workspace.blacklistedIpAddresses);
+    this.checkUserHasAccessToWorkspace(
+      params.user,
+      result.workspace.blacklistedIpAddresses
+    )
 
     return result.integration
   }
 
-  private checkUserHasAccessToWorkspace(user: AuthenticatedUser, blacklistedIpAddresses: IpAddress[]) {
-    if (blacklistedIpAddresses.some(ipAddress => ipAddress.value === user.ipAddress)) {
-      throw new ForbiddenException(`User ${user.id} is not allowed to access this workspace`);
+  private checkUserHasAccessToWorkspace(
+    user: AuthenticatedUser,
+    blacklistedIpAddresses: IpAddress[]
+  ) {
+    if (
+      blacklistedIpAddresses.some(
+        (ipAddress) => ipAddress.value === user.ipAddress
+      )
+    ) {
+      throw new ForbiddenException(
+        `User ${user.id} is not allowed to access this workspace`
+      )
     }
   }
 }

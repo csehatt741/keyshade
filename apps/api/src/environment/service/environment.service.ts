@@ -61,16 +61,15 @@ export class EnvironmentService {
     projectSlug: Project['slug']
   ) {
     // Check if the user has the required role to create an environment
-    const project =
-      await this.authzService.authorizeUserAccessToProject({
-        user: user,
-        entity: { slug: projectSlug },
-        authorities: [
-          Authority.CREATE_ENVIRONMENT,
-          Authority.READ_ENVIRONMENT,
-          Authority.READ_PROJECT
-        ]
-      })
+    const project = await this.authzService.authorizeUserAccessToProject({
+      user: user,
+      entity: { slug: projectSlug },
+      authorities: [
+        Authority.CREATE_ENVIRONMENT,
+        Authority.READ_ENVIRONMENT,
+        Authority.READ_PROJECT
+      ]
+    })
     const projectId = project.id
 
     // Check if an environment with the same name already exists
@@ -228,7 +227,10 @@ export class EnvironmentService {
    * @param environmentSlug The slug of the environment to get
    * @returns The environment
    */
-  async getEnvironment(user: AuthenticatedUser, environmentSlug: Environment['slug']) {
+  async getEnvironment(
+    user: AuthenticatedUser,
+    environmentSlug: Environment['slug']
+  ) {
     const environment =
       await this.authzService.authorizeUserAccessToEnvironment({
         user: user,
@@ -280,12 +282,11 @@ export class EnvironmentService {
     order: string,
     search: string
   ) {
-    const project =
-      await this.authzService.authorizeUserAccessToProject({
-        user: user,
-        entity: { slug: projectSlug },
-        authorities: [Authority.READ_ENVIRONMENT]
-      })
+    const project = await this.authzService.authorizeUserAccessToProject({
+      user: user,
+      entity: { slug: projectSlug },
+      authorities: [Authority.READ_ENVIRONMENT]
+    })
     const projectId = project.id
 
     // Get the environments for the required page
@@ -364,7 +365,10 @@ export class EnvironmentService {
    * @param user The user that is deleting the environment
    * @param environmentSlug The slug of the environment to delete
    */
-  async deleteEnvironment(user: AuthenticatedUser, environmentSlug: Environment['slug']) {
+  async deleteEnvironment(
+    user: AuthenticatedUser,
+    environmentSlug: Environment['slug']
+  ) {
     const environment =
       await this.authzService.authorizeUserAccessToEnvironment({
         user: user,

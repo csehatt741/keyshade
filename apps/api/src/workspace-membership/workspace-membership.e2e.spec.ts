@@ -75,7 +75,9 @@ describe('Workspace Membership Controller Tests', () => {
   let variableService: VariableService
   let workspaceRoleService: WorkspaceRoleService
 
-  let user1: AuthenticatedUser, user2: AuthenticatedUser, user3: AuthenticatedUser
+  let user1: AuthenticatedUser,
+    user2: AuthenticatedUser,
+    user3: AuthenticatedUser
   let workspace1: Workspace
   let adminRole: WorkspaceRole, memberRole: WorkspaceRole
 

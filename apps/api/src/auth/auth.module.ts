@@ -11,8 +11,8 @@ import { GitlabOAuthStrategyFactory } from '@/config/factory/gitlab/gitlab-strat
 import { GitlabStrategy } from '@/config/oauth-strategy/gitlab/gitlab.strategy'
 import { seconds, ThrottlerModule } from '@nestjs/throttler'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { AuthzService } from './service/authz.service';
-import { AuthorityCheckerService } from './service/authority-checker.service';
+import { AuthzService } from './service/authz.service'
+import { AuthorityCheckerService } from './service/authority-checker.service'
 
 @Global()
 @Module({

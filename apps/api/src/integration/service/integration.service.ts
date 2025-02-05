@@ -63,12 +63,11 @@ export class IntegrationService {
     workspaceSlug: Workspace['slug']
   ) {
     // Check if the user is permitted to create integrations in the workspace
-    const workspace =
-      await this.authzService.authorizeUserAccessToWorkspace({
-        user: user,
-        entity: { slug: workspaceSlug },
-        authorities: [Authority.CREATE_INTEGRATION, Authority.READ_WORKSPACE]
-      })
+    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+      user: user,
+      entity: { slug: workspaceSlug },
+      authorities: [Authority.CREATE_INTEGRATION, Authority.READ_WORKSPACE]
+    })
     const workspaceId = workspace.id
 
     // Check if integration with the same name already exists
@@ -79,7 +78,7 @@ export class IntegrationService {
 
     // Check if the user has READ authority over the project
     if (dto.projectSlug) {
-      await this.authzService.authorizeUserAccessToProject({
+      project = await this.authzService.authorizeUserAccessToProject({
         user: user,
         entity: { slug: dto.projectSlug },
         authorities: [Authority.READ_PROJECT]
@@ -95,12 +94,11 @@ export class IntegrationService {
 
     // Check if the user has READ authority over the environment
     if (dto.environmentSlug) {
-      environment =
-        await this.authzService.authorizeUserAccessToEnvironment({
-          user: user,
-          entity: { slug: dto.environmentSlug },
-          authorities: [Authority.READ_ENVIRONMENT]
-        })
+      environment = await this.authzService.authorizeUserAccessToEnvironment({
+        user: user,
+        entity: { slug: dto.environmentSlug },
+        authorities: [Authority.READ_ENVIRONMENT]
+      })
     }
 
     // Create the integration object
@@ -188,7 +186,7 @@ export class IntegrationService {
       await this.existsByNameAndWorkspaceId(dto.name, integration.workspace)
     }
 
-    let project: Project | null = null
+    const project: Project | null = null
     let environment: Environment | null = null
 
     // If the project is being changed, check if the user has READ authority over the new project
@@ -209,12 +207,11 @@ export class IntegrationService {
 
     // If the environment is being changed, check if the user has READ authority over the new environment
     if (dto.environmentSlug) {
-      environment =
-        await this.authzService.authorizeUserAccessToEnvironment({
-          user: user,
-          entity: { slug: dto.environmentSlug },
-          authorities: [Authority.READ_ENVIRONMENT]
-        })
+      environment = await this.authzService.authorizeUserAccessToEnvironment({
+        user: user,
+        entity: { slug: dto.environmentSlug },
+        authorities: [Authority.READ_ENVIRONMENT]
+      })
     }
 
     // Create the integration object
@@ -273,7 +270,10 @@ export class IntegrationService {
    * @param integrationSlug The slug of the integration to retrieve
    * @returns The integration with the given slug
    */
-  async getIntegration(user: AuthenticatedUser, integrationSlug: Integration['slug']) {
+  async getIntegration(
+    user: AuthenticatedUser,
+    integrationSlug: Integration['slug']
+  ) {
     return await this.authzService.authorizeUserAccessToIntegration({
       user: user,
       entity: { slug: integrationSlug },
@@ -309,12 +309,11 @@ export class IntegrationService {
     search: string
   ) {
     // Check if the user has READ authority over the workspace
-    const workspace =
-      await this.authzService.authorizeUserAccessToWorkspace({
-        user: user,
-        entity: { slug: workspaceSlug },
-        authorities: [Authority.READ_INTEGRATION]
-      })
+    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+      user: user,
+      entity: { slug: workspaceSlug },
+      authorities: [Authority.READ_INTEGRATION]
+    })
     const workspaceId = workspace.id
 
     // We need to return only those integrations that have the following properties:
@@ -417,7 +416,10 @@ export class IntegrationService {
    * @param integrationSlug The slug of the integration to delete
    * @returns Nothing
    */
-  async deleteIntegration(user: AuthenticatedUser, integrationSlug: Integration['slug']) {
+  async deleteIntegration(
+    user: AuthenticatedUser,
+    integrationSlug: Integration['slug']
+  ) {
     const integration =
       await this.authzService.authorizeUserAccessToIntegration({
         user: user,

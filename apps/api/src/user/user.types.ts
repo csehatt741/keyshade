@@ -7,7 +7,3 @@ export interface UserWithWorkspace extends User {
 export interface AuthenticatedUser extends User {
   ipAddress: string
 }
-
-export interface AuthenticatedUserWithWorkspace extends AuthenticatedUser {
-  defaultWorkspace: Workspace
-}

@@ -29,7 +29,8 @@ import { AuthorizationParams } from './authz.types'
 export class AuthorityCheckerService {
   constructor(
     private readonly prisma: PrismaClient,
-    private readonly customLoggerService: CustomLoggerService) {}
+    private readonly customLoggerService: CustomLoggerService
+  ) {}
 
   /**
    * Checks if the user has the required authorities to access the given workspace.
@@ -45,7 +46,10 @@ export class AuthorityCheckerService {
   ): Promise<WorkspaceWithBlacklistedIpAddresses> {
     const { user, entity, authorities } = params
 
-    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(user.id, { workspaceSlug: entity.slug, workspaceName: entity.name });
+    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(
+      user.id,
+      { workspaceSlug: entity.slug, workspaceName: entity.name }
+    )
 
     const permittedAuthorities = await getCollectiveWorkspaceAuthorities(
       workspace.id,
@@ -53,7 +57,11 @@ export class AuthorityCheckerService {
       this.prisma
     )
 
-    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, user.id)
+    this.checkHasPermissionOverEntity(
+      permittedAuthorities,
+      authorities,
+      user.id
+    )
 
     return workspace
   }
@@ -67,9 +75,10 @@ export class AuthorityCheckerService {
    * @throws NotFoundException if the project is not found
    * @throws UnauthorizedException if the user does not have the required authorities
    */
-  public async checkAuthorityOverProject(
-    params: AuthorizationParams
-  ): Promise<{project: ProjectWithSecrets, workspace: WorkspaceWithBlacklistedIpAddresses}> {
+  public async checkAuthorityOverProject(params: AuthorizationParams): Promise<{
+    project: ProjectWithSecrets
+    workspace: WorkspaceWithBlacklistedIpAddresses
+  }> {
     const { user, entity, authorities } = params
 
     let project: ProjectWithSecrets
@@ -147,7 +156,10 @@ export class AuthorityCheckerService {
         break
     }
 
-    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(user.id, { workspaceId: project.workspaceId });
+    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(
+      user.id,
+      { workspaceId: project.workspaceId }
+    )
 
     return { project, workspace }
   }
@@ -163,7 +175,10 @@ export class AuthorityCheckerService {
    */
   public async checkAuthorityOverEnvironment(
     params: AuthorizationParams
-  ): Promise<{ environment: EnvironmentWithProject, workspace: WorkspaceWithBlacklistedIpAddresses }> {
+  ): Promise<{
+    environment: EnvironmentWithProject
+    workspace: WorkspaceWithBlacklistedIpAddresses
+  }> {
     const { user, entity, authorities } = params
 
     let environment: EnvironmentWithProject
@@ -204,9 +219,16 @@ export class AuthorityCheckerService {
       this.prisma
     )
 
-    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, user.id)
+    this.checkHasPermissionOverEntity(
+      permittedAuthorities,
+      authorities,
+      user.id
+    )
 
-    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(user.id, { workspaceId: environment.project.workspaceId });
+    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(
+      user.id,
+      { workspaceId: environment.project.workspaceId }
+    )
 
     return { environment, workspace }
   }
@@ -222,7 +244,10 @@ export class AuthorityCheckerService {
    */
   public async checkAuthorityOverVariable(
     params: AuthorizationParams
-  ): Promise<{ variable: VariableWithProjectAndVersion, workspace: WorkspaceWithBlacklistedIpAddresses }> {
+  ): Promise<{
+    variable: VariableWithProjectAndVersion
+    workspace: WorkspaceWithBlacklistedIpAddresses
+  }> {
     const { user, entity, authorities } = params
 
     let variable: VariableWithProjectAndVersion
@@ -265,9 +290,16 @@ export class AuthorityCheckerService {
       this.prisma
     )
 
-    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, user.id)
+    this.checkHasPermissionOverEntity(
+      permittedAuthorities,
+      authorities,
+      user.id
+    )
 
-    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(user.id, { workspaceId: variable.project.workspaceId });
+    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(
+      user.id,
+      { workspaceId: variable.project.workspaceId }
+    )
 
     return { variable, workspace }
   }
@@ -281,9 +313,10 @@ export class AuthorityCheckerService {
    * @throws NotFoundException if the secret is not found
    * @throws UnauthorizedException if the user does not have the required authorities
    */
-  public async checkAuthorityOverSecret(
-    params: AuthorizationParams
-  ): Promise<{ secret: SecretWithProjectAndVersion, workspace: WorkspaceWithBlacklistedIpAddresses }> {
+  public async checkAuthorityOverSecret(params: AuthorizationParams): Promise<{
+    secret: SecretWithProjectAndVersion
+    workspace: WorkspaceWithBlacklistedIpAddresses
+  }> {
     const { user, entity, authorities } = params
 
     let secret: SecretWithProjectAndVersion
@@ -326,9 +359,16 @@ export class AuthorityCheckerService {
       this.prisma
     )
 
-    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, user.id)
+    this.checkHasPermissionOverEntity(
+      permittedAuthorities,
+      authorities,
+      user.id
+    )
 
-    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(user.id, { workspaceId: secret.project.workspaceId });
+    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(
+      user.id,
+      { workspaceId: secret.project.workspaceId }
+    )
 
     return { secret, workspace }
   }
@@ -344,7 +384,10 @@ export class AuthorityCheckerService {
    */
   public async checkAuthorityOverIntegration(
     params: AuthorizationParams
-  ): Promise<{ integration: IntegrationWithWorkspace, workspace: WorkspaceWithBlacklistedIpAddresses }> {
+  ): Promise<{
+    integration: IntegrationWithWorkspace
+    workspace: WorkspaceWithBlacklistedIpAddresses
+  }> {
     const { user, entity, authorities } = params
 
     let integration: IntegrationWithWorkspace | null
@@ -385,7 +428,11 @@ export class AuthorityCheckerService {
       this.prisma
     )
 
-    this.checkHasPermissionOverEntity(permittedAuthorities, authorities, user.id)
+    this.checkHasPermissionOverEntity(
+      permittedAuthorities,
+      authorities,
+      user.id
+    )
 
     if (integration.projectId) {
       const project = await this.prisma.project.findUnique({
@@ -406,10 +453,17 @@ export class AuthorityCheckerService {
         this.prisma
       )
 
-      this.checkHasPermissionOverEntity(projectAuthorities, authorities, user.id)
+      this.checkHasPermissionOverEntity(
+        projectAuthorities,
+        authorities,
+        user.id
+      )
     }
 
-    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(user.id, { workspaceId: integration.workspaceId });
+    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(
+      user.id,
+      { workspaceId: integration.workspaceId }
+    )
 
     return { integration, workspace }
   }
@@ -424,9 +478,13 @@ export class AuthorityCheckerService {
    */
   private async getWorkspaceWithBlacklistedIpAddresses(
     userId: User['id'],
-    filter: { workspaceId?: Workspace['id']; workspaceSlug?: Workspace['slug']; workspaceName?: Workspace['name'] }
-  ) : Promise<WorkspaceWithBlacklistedIpAddresses> {
-    let workspace: WorkspaceWithBlacklistedIpAddresses;
+    filter: {
+      workspaceId?: Workspace['id']
+      workspaceSlug?: Workspace['slug']
+      workspaceName?: Workspace['name']
+    }
+  ): Promise<WorkspaceWithBlacklistedIpAddresses> {
+    let workspace: WorkspaceWithBlacklistedIpAddresses
 
     try {
       if (filter.workspaceId) {
@@ -438,8 +496,7 @@ export class AuthorityCheckerService {
             blacklistedIpAddresses: true
           }
         })
-      }
-      else if (filter.workspaceSlug) {
+      } else if (filter.workspaceSlug) {
         workspace = await this.prisma.workspace.findUnique({
           where: {
             slug: filter.workspaceSlug
@@ -458,14 +515,16 @@ export class AuthorityCheckerService {
             blacklistedIpAddresses: true
           }
         })
-      }      
+      }
     } catch (error) {
       this.customLoggerService.error(error)
       throw new InternalServerErrorException(error)
     }
 
     if (!workspace) {
-      throw new NotFoundException(`Workspace ${filter.workspaceId ?? filter.workspaceSlug ?? filter.workspaceName} not found`)
+      throw new NotFoundException(
+        `Workspace ${filter.workspaceId ?? filter.workspaceSlug ?? filter.workspaceName} not found`
+      )
     }
 
     return workspace

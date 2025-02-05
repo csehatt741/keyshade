@@ -71,12 +71,11 @@ export class WorkspaceService {
     dto: UpdateWorkspace
   ) {
     // Fetch the workspace
-    const workspace =
-      await this.authzService.authorizeUserAccessToWorkspace({
-        user: user,
-        entity: { slug: workspaceSlug },
-        authorities: [Authority.UPDATE_WORKSPACE]
-      })
+    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+      user: user,
+      entity: { slug: workspaceSlug },
+      authorities: [Authority.UPDATE_WORKSPACE]
+    })
 
     // Check if a same named workspace already exists
     if (
@@ -134,12 +133,11 @@ export class WorkspaceService {
     user: AuthenticatedUser,
     workspaceSlug: Workspace['slug']
   ): Promise<void> {
-    const workspace =
-      await this.authzService.authorizeUserAccessToWorkspace({
-        user: user,
-        entity: { slug: workspaceSlug },
-        authorities: [Authority.DELETE_WORKSPACE]
-      })
+    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+      user: user,
+      entity: { slug: workspaceSlug },
+      authorities: [Authority.DELETE_WORKSPACE]
+    })
 
     // We don't want the users to delete their default workspace
     if (workspace.isDefault) {
@@ -169,12 +167,11 @@ export class WorkspaceService {
     user: AuthenticatedUser,
     workspaceSlug: Workspace['slug']
   ): Promise<Workspace> {
-    const workspace =
-      await this.authzService.authorizeUserAccessToWorkspace({
-        user: user,
-        entity: { slug: workspaceSlug },
-        authorities: [Authority.READ_USERS]
-      })
+    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+      user: user,
+      entity: { slug: workspaceSlug },
+      authorities: [Authority.READ_USERS]
+    })
 
     return {
       ...workspace,
@@ -221,10 +218,7 @@ export class WorkspaceService {
     })
 
     for (const workspace of items) {
-      workspace['projects'] = await this.getProjectsOfWorkspace(
-        workspace,
-        user
-      )
+      workspace['projects'] = await this.getProjectsOfWorkspace(workspace, user)
     }
 
     // get total count of workspaces of the user
@@ -269,12 +263,11 @@ export class WorkspaceService {
    * @throws InternalServerErrorException if there is an error in the transaction
    */
   async exportData(user: AuthenticatedUser, workspaceSlug: Workspace['slug']) {
-    const workspace =
-      await this.authzService.authorizeUserAccessToWorkspace({
-        user: user,
-        entity: { slug: workspaceSlug },
-        authorities: [Authority.WORKSPACE_ADMIN]
-      })
+    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+      user: user,
+      entity: { slug: workspaceSlug },
+      authorities: [Authority.WORKSPACE_ADMIN]
+    })
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = {}
@@ -365,18 +358,17 @@ export class WorkspaceService {
     variables: Partial<Variable>[]
   }> {
     // Check authority over workspace
-    const workspace =
-      await this.authzService.authorizeUserAccessToWorkspace({
-        user: user,
-        entity: { slug: workspaceSlug },
-        authorities: [
-          Authority.READ_WORKSPACE,
-          Authority.READ_PROJECT,
-          Authority.READ_ENVIRONMENT,
-          Authority.READ_SECRET,
-          Authority.READ_VARIABLE
-        ]
-      })
+    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+      user: user,
+      entity: { slug: workspaceSlug },
+      authorities: [
+        Authority.READ_WORKSPACE,
+        Authority.READ_PROJECT,
+        Authority.READ_ENVIRONMENT,
+        Authority.READ_SECRET,
+        Authority.READ_VARIABLE
+      ]
+    })
 
     // Get a list of project IDs that the user has access to READ
     const accessibleProjectIds = await this.getAccessibleProjectIds(
@@ -684,12 +676,13 @@ export class WorkspaceService {
     let accessibleProjectCount = 0
 
     for (const project of projects) {
-      const hasAuthority =
-        await this.authzService.authorizeUserAccessToProject({
+      const hasAuthority = await this.authzService.authorizeUserAccessToProject(
+        {
           user,
           entity: { slug: project.slug },
           authorities: [Authority.READ_PROJECT]
-        })
+        }
+      )
 
       if (hasAuthority) {
         accessibleProjectCount++

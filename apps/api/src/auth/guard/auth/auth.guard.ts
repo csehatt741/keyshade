@@ -15,7 +15,7 @@ import { EnvSchema } from '@/common/env/env.schema'
 import { CacheService } from '@/cache/cache.service'
 import { toSHA256 } from '@/common/cryptography'
 import { getUserByEmailOrId } from '@/common/user'
-import { Request } from 'express';
+import { Request } from 'express'
 
 const X_E2E_USER_EMAIL = 'x-e2e-user-email'
 const X_KEYSHADE_TOKEN = 'x-keyshade-token'
@@ -132,8 +132,7 @@ export class AuthGuard implements CanActivate {
               ...cachedUser,
               ipAddress: request.ip
             }
-          }
-          else {
+          } else {
             const user = await getUserByEmailOrId(payload['id'], this.prisma)
 
             userContext = {

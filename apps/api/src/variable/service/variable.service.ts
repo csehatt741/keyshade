@@ -63,12 +63,11 @@ export class VariableService {
     projectSlug: Project['slug']
   ): Promise<VariableWithValues> {
     // Fetch the project
-    const project =
-      await this.authzService.authorizeUserAccessToProject({
-        user: user,
-        entity: { slug: projectSlug },
-        authorities: [Authority.CREATE_VARIABLE]
-      })
+    const project = await this.authzService.authorizeUserAccessToProject({
+      user: user,
+      entity: { slug: projectSlug },
+      authorities: [Authority.CREATE_VARIABLE]
+    })
     const projectId = project.id
 
     // Check if a variable with the same name already exists in the project
@@ -173,12 +172,11 @@ export class VariableService {
     variableSlug: Variable['slug'],
     dto: UpdateVariable
   ) {
-    const variable =
-      await this.authzService.authorizeUserAccessToVariable({
-        user: user,
-        entity: { slug: variableSlug },
-        authorities: [Authority.UPDATE_VARIABLE]
-      })
+    const variable = await this.authzService.authorizeUserAccessToVariable({
+      user: user,
+      entity: { slug: variableSlug },
+      authorities: [Authority.UPDATE_VARIABLE]
+    })
 
     // Check if the variable already exists in the project
     dto.name && (await this.variableExists(dto.name, variable.project))
@@ -345,12 +343,11 @@ export class VariableService {
       })
     const environmentId = environment.id
 
-    const variable =
-      await this.authzService.authorizeUserAccessToVariable({
-        user: user,
-        entity: { slug: variableSlug },
-        authorities: [Authority.UPDATE_VARIABLE]
-      })
+    const variable = await this.authzService.authorizeUserAccessToVariable({
+      user: user,
+      entity: { slug: variableSlug },
+      authorities: [Authority.UPDATE_VARIABLE]
+    })
 
     // Filter the variable versions by the environment
     variable.versions = variable.versions.filter(
@@ -430,13 +427,15 @@ export class VariableService {
    * @throws `NotFoundException` if the variable does not exist
    * @throws `ForbiddenException` if the user does not have the required authority
    */
-  async deleteVariable(user: AuthenticatedUser, variableSlug: Variable['slug']) {
-    const variable =
-      await this.authzService.authorizeUserAccessToVariable({
-        user: user,
-        entity: { slug: variableSlug },
-        authorities: [Authority.DELETE_VARIABLE]
-      })
+  async deleteVariable(
+    user: AuthenticatedUser,
+    variableSlug: Variable['slug']
+  ) {
+    const variable = await this.authzService.authorizeUserAccessToVariable({
+      user: user,
+      entity: { slug: variableSlug },
+      authorities: [Authority.DELETE_VARIABLE]
+    })
 
     // Delete the variable
     await this.prisma.variable.delete({
