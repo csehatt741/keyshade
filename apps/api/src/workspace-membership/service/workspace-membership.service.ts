@@ -55,11 +55,12 @@ export class WorkspaceMembershipService {
     workspaceSlug: Workspace['slug'],
     otherUserEmail: User['email']
   ): Promise<void> {
-    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
-      user: user,
-      entity: { slug: workspaceSlug },
-      authorities: [Authority.WORKSPACE_ADMIN]
-    })
+    const workspace =
+      await this.authorizationService.authorizeUserAccessToWorkspace({
+        user: user,
+        entity: { slug: workspaceSlug },
+        authorities: [Authority.WORKSPACE_ADMIN]
+      })
 
     const otherUser = await getUserByEmailOrId(otherUserEmail, this.prisma)
 
@@ -193,11 +194,12 @@ export class WorkspaceMembershipService {
     workspaceSlug: Workspace['slug'],
     members: CreateWorkspaceMember[]
   ): Promise<void> {
-    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
-      user: user,
-      entity: { slug: workspaceSlug },
-      authorities: [Authority.ADD_USER]
-    })
+    const workspace =
+      await this.authorizationService.authorizeUserAccessToWorkspace({
+        user: user,
+        entity: { slug: workspaceSlug },
+        authorities: [Authority.ADD_USER]
+      })
 
     // Add users to the workspace if any
     if (members && members.length > 0) {
@@ -247,11 +249,12 @@ export class WorkspaceMembershipService {
     workspaceSlug: Workspace['slug'],
     userEmails: User['email'][]
   ): Promise<void> {
-    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
-      user: user,
-      entity: { slug: workspaceSlug },
-      authorities: [Authority.REMOVE_USER]
-    })
+    const workspace =
+      await this.authorizationService.authorizeUserAccessToWorkspace({
+        user: user,
+        entity: { slug: workspaceSlug },
+        authorities: [Authority.REMOVE_USER]
+      })
 
     const userIds = await this.prisma.user
       .findMany({
@@ -337,11 +340,12 @@ export class WorkspaceMembershipService {
   ): Promise<void> {
     const otherUser = await getUserByEmailOrId(otherUserEmail, this.prisma)
 
-    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
-      user: user,
-      entity: { slug: workspaceSlug },
-      authorities: [Authority.UPDATE_USER_ROLE]
-    })
+    const workspace =
+      await this.authorizationService.authorizeUserAccessToWorkspace({
+        user: user,
+        entity: { slug: workspaceSlug },
+        authorities: [Authority.UPDATE_USER_ROLE]
+      })
 
     if (!roleSlugs || roleSlugs.length === 0) {
       this.log.warn(
@@ -453,11 +457,12 @@ export class WorkspaceMembershipService {
     order: string,
     search: string
   ) {
-    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
-      user: user,
-      entity: { slug: workspaceSlug },
-      authorities: [Authority.READ_USERS]
-    })
+    const workspace =
+      await this.authorizationService.authorizeUserAccessToWorkspace({
+        user: user,
+        entity: { slug: workspaceSlug },
+        authorities: [Authority.READ_USERS]
+      })
     //get all members of workspace for page with limit
     const items = await this.prisma.workspaceMember.findMany({
       skip: page * limit,
@@ -616,11 +621,12 @@ export class WorkspaceMembershipService {
   ): Promise<void> {
     const inviteeUser = await getUserByEmailOrId(inviteeEmail, this.prisma)
 
-    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
-      user: user,
-      entity: { slug: workspaceSlug },
-      authorities: [Authority.REMOVE_USER]
-    })
+    const workspace =
+      await this.authorizationService.authorizeUserAccessToWorkspace({
+        user: user,
+        entity: { slug: workspaceSlug },
+        authorities: [Authority.REMOVE_USER]
+      })
 
     // Check if the user has a pending invitation to the workspace
     await this.checkInvitationPending(workspaceSlug, inviteeUser)
@@ -703,11 +709,12 @@ export class WorkspaceMembershipService {
     user: AuthenticatedUser,
     workspaceSlug: Workspace['slug']
   ): Promise<void> {
-    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
-      user: user,
-      entity: { slug: workspaceSlug },
-      authorities: [Authority.READ_WORKSPACE]
-    })
+    const workspace =
+      await this.authorizationService.authorizeUserAccessToWorkspace({
+        user: user,
+        entity: { slug: workspaceSlug },
+        authorities: [Authority.READ_WORKSPACE]
+      })
 
     const workspaceOwnerId = await this.prisma.workspace
       .findUnique({
@@ -769,11 +776,12 @@ export class WorkspaceMembershipService {
       return false
     }
 
-    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
-      user: user,
-      entity: { slug: workspaceSlug },
-      authorities: [Authority.READ_USERS]
-    })
+    const workspace =
+      await this.authorizationService.authorizeUserAccessToWorkspace({
+        user: user,
+        entity: { slug: workspaceSlug },
+        authorities: [Authority.READ_USERS]
+      })
 
     return await this.memberExistsInWorkspace(workspace.id, otherUser.id)
   }

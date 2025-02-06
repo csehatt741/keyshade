@@ -63,11 +63,12 @@ export class IntegrationService {
     workspaceSlug: Workspace['slug']
   ) {
     // Check if the user is permitted to create integrations in the workspace
-    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
-      user: user,
-      entity: { slug: workspaceSlug },
-      authorities: [Authority.CREATE_INTEGRATION, Authority.READ_WORKSPACE]
-    })
+    const workspace =
+      await this.authorizationService.authorizeUserAccessToWorkspace({
+        user: user,
+        entity: { slug: workspaceSlug },
+        authorities: [Authority.CREATE_INTEGRATION, Authority.READ_WORKSPACE]
+      })
     const workspaceId = workspace.id
 
     // Check if integration with the same name already exists
@@ -94,11 +95,12 @@ export class IntegrationService {
 
     // Check if the user has READ authority over the environment
     if (dto.environmentSlug) {
-      environment = await this.authorizationService.authorizeUserAccessToEnvironment({
-        user: user,
-        entity: { slug: dto.environmentSlug },
-        authorities: [Authority.READ_ENVIRONMENT]
-      })
+      environment =
+        await this.authorizationService.authorizeUserAccessToEnvironment({
+          user: user,
+          entity: { slug: dto.environmentSlug },
+          authorities: [Authority.READ_ENVIRONMENT]
+        })
     }
 
     // Create the integration object
@@ -207,11 +209,12 @@ export class IntegrationService {
 
     // If the environment is being changed, check if the user has READ authority over the new environment
     if (dto.environmentSlug) {
-      environment = await this.authorizationService.authorizeUserAccessToEnvironment({
-        user: user,
-        entity: { slug: dto.environmentSlug },
-        authorities: [Authority.READ_ENVIRONMENT]
-      })
+      environment =
+        await this.authorizationService.authorizeUserAccessToEnvironment({
+          user: user,
+          entity: { slug: dto.environmentSlug },
+          authorities: [Authority.READ_ENVIRONMENT]
+        })
     }
 
     // Create the integration object
@@ -309,11 +312,12 @@ export class IntegrationService {
     search: string
   ) {
     // Check if the user has READ authority over the workspace
-    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
-      user: user,
-      entity: { slug: workspaceSlug },
-      authorities: [Authority.READ_INTEGRATION]
-    })
+    const workspace =
+      await this.authorizationService.authorizeUserAccessToWorkspace({
+        user: user,
+        entity: { slug: workspaceSlug },
+        authorities: [Authority.READ_INTEGRATION]
+      })
     const workspaceId = workspace.id
 
     // We need to return only those integrations that have the following properties:

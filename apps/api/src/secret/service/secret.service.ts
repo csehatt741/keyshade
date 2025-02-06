@@ -72,11 +72,12 @@ export class SecretService {
     projectSlug: Project['slug']
   ): Promise<SecretWithValues> {
     // Fetch the project
-    const project = await this.authorizationService.authorizeUserAccessToProject({
-      user: user,
-      entity: { slug: projectSlug },
-      authorities: [Authority.CREATE_SECRET]
-    })
+    const project =
+      await this.authorizationService.authorizeUserAccessToProject({
+        user: user,
+        entity: { slug: projectSlug },
+        authorities: [Authority.CREATE_SECRET]
+      })
     const projectId = project.id
 
     // Check if the secret with the same name already exists in the project
@@ -494,11 +495,12 @@ export class SecretService {
     environmentSlug: Environment['slug']
   ) {
     // Fetch the project
-    const project = await this.authorizationService.authorizeUserAccessToProject({
-      user: user,
-      entity: { slug: projectSlug },
-      authorities: [Authority.READ_SECRET]
-    })
+    const project =
+      await this.authorizationService.authorizeUserAccessToProject({
+        user: user,
+        entity: { slug: projectSlug },
+        authorities: [Authority.READ_SECRET]
+      })
     const projectId = project.id
 
     // Check access to the environment
@@ -648,11 +650,12 @@ export class SecretService {
     search: string
   ) {
     // Fetch the project
-    const project = await this.authorizationService.authorizeUserAccessToProject({
-      user: user,
-      entity: { slug: projectSlug },
-      authorities: [Authority.READ_SECRET]
-    })
+    const project =
+      await this.authorizationService.authorizeUserAccessToProject({
+        user: user,
+        entity: { slug: projectSlug },
+        authorities: [Authority.READ_SECRET]
+      })
     const projectId = project.id
 
     // Check if the secret values can be decrypted

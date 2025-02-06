@@ -37,11 +37,12 @@ export const getEnvironmentIdToSlugMap = async (
   const environmentSlugs = dto.entries.map((entry) => entry.environmentSlug)
   await Promise.all(
     environmentSlugs.map(async (environmentSlug) => {
-      const environment = await authorizationService.authorizeUserAccessToEnvironment({
-        user: user,
-        entity: { slug: environmentSlug },
-        authorities: [Authority.READ_ENVIRONMENT]
-      })
+      const environment =
+        await authorizationService.authorizeUserAccessToEnvironment({
+          user: user,
+          entity: { slug: environmentSlug },
+          authorities: [Authority.READ_ENVIRONMENT]
+        })
 
       if (!environment) {
         throw new NotFoundException(`Environment: ${environmentSlug} not found`)
