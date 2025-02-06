@@ -1,3 +1,19 @@
+## [2.11.0-stage.13](https://github.com/keyshade-xyz/keyshade/compare/v2.11.0-stage.12...v2.11.0-stage.13) (2025-02-05)
+
+### 🚀 Features
+
+* **platform:** Edit [secure] in project ([#684](https://github.com/keyshade-xyz/keyshade/issues/684)) ([1e34030](https://github.com/keyshade-xyz/keyshade/commit/1e340302bc34ec061683a4af1ee0da178f59aef0))
+
+## [2.11.0-stage.12](https://github.com/keyshade-xyz/keyshade/compare/v2.11.0-stage.11...v2.11.0-stage.12) (2025-02-04)
+
+### 🚀 Features
+
+* Update details in listing [secure]s ([#686](https://github.com/keyshade-xyz/keyshade/issues/686)) ([84aa5f4](https://github.com/keyshade-xyz/keyshade/commit/84aa5f46083826ce9f84752f5abae0a61da7f90e))
+
+### 🔧 Miscellaneous Chores
+
+* **api:** Remove failing environment tests ([d1b9767](https://github.com/keyshade-xyz/keyshade/commit/d1b9767a9714ee7dfa38b9f066beb80db40b4757))
+
 ## [2.11.0-stage.11](https://github.com/keyshade-xyz/keyshade/compare/v2.11.0-stage.10...v2.11.0-stage.11) (2025-02-04)
 
 ### 🐛 Bug Fixes
