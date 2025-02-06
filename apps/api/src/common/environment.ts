@@ -5,7 +5,7 @@ import { CreateVariable } from '@/variable/dto/create.variable/create.variable'
 import { UpdateVariable } from '@/variable/dto/update.variable/update.variable'
 import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { Authority, Project, User } from '@prisma/client'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import { AuthenticatedUser } from '@/user/user.types'
 
 /**
@@ -29,7 +29,7 @@ export const getEnvironmentIdToSlugMap = async (
   user: AuthenticatedUser,
   project: Project,
   prisma: PrismaService,
-  authzService: AuthzService
+  authorizationService: AuthorizationService
 ): Promise<Map<string, string>> => {
   const environmentSlugToIdMap = new Map<string, string>()
 
@@ -37,7 +37,7 @@ export const getEnvironmentIdToSlugMap = async (
   const environmentSlugs = dto.entries.map((entry) => entry.environmentSlug)
   await Promise.all(
     environmentSlugs.map(async (environmentSlug) => {
-      const environment = await authzService.authorizeUserAccessToEnvironment({
+      const environment = await authorizationService.authorizeUserAccessToEnvironment({
         user: user,
         entity: { slug: environmentSlug },
         authorities: [Authority.READ_ENVIRONMENT]

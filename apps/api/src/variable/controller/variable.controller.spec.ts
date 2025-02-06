@@ -8,7 +8,7 @@ import { REDIS_CLIENT } from '@/provider/redis.provider'
 import { RedisClientType } from 'redis'
 import { mockDeep } from 'jest-mock-extended'
 import { ProviderModule } from '@/provider/provider.module'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import { CommonModule } from '@/common/common.module'
 
 describe('VariableController', () => {
@@ -24,7 +24,7 @@ describe('VariableController', () => {
           useClass: MockMailService
         },
         VariableService,
-        AuthzService
+        AuthorizationService
       ],
       controllers: [VariableController]
     })

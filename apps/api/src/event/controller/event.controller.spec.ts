@@ -3,7 +3,7 @@ import { EventController } from './event.controller'
 import { EventService } from '../service/event.service'
 import { PrismaService } from '@/prisma/prisma.service'
 import { CommonModule } from '@/common/common.module'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 
 describe('EventController', () => {
   let controller: EventController
@@ -12,7 +12,7 @@ describe('EventController', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [CommonModule],
       controllers: [EventController],
-      providers: [EventService, PrismaService, AuthzService]
+      providers: [EventService, PrismaService, AuthorizationService]
     }).compile()
 
     controller = module.get<EventController>(EventController)

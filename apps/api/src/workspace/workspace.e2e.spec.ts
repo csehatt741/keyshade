@@ -636,7 +636,7 @@ describe('Workspace Controller Tests', () => {
           id: workspace1.id
         },
         data: {
-          blacklistedIpAddresses: [ BLACKLISTED_IP_ADDRESS ]
+          blacklistedIpAddresses: [BLACKLISTED_IP_ADDRESS]
         }
       })
 
@@ -666,7 +666,7 @@ describe('Workspace Controller Tests', () => {
         },
         url: `/workspace/${workspace1.slug}/blacklistedIpAddresses`,
         payload: {
-          ipAddresses: [ BLACKLISTED_IP_ADDRESS ]
+          ipAddresses: [BLACKLISTED_IP_ADDRESS]
         }
       })
 
@@ -679,7 +679,7 @@ describe('Workspace Controller Tests', () => {
           id: workspace1.id
         },
         data: {
-          blacklistedIpAddresses: [ USER_IP_ADDRESS ]
+          blacklistedIpAddresses: [USER_IP_ADDRESS]
         }
       })
 
@@ -705,7 +705,7 @@ describe('Workspace Controller Tests', () => {
         },
         url: `/workspace/${workspace1.slug}/blacklistedIpAddresses`,
         payload: {
-          ipAddresses: [ BLACKLISTED_IP_ADDRESS ]
+          ipAddresses: [BLACKLISTED_IP_ADDRESS]
         }
       })
 

@@ -19,7 +19,7 @@ import {
 import { CreateProject } from '../dto/create.project/create.project'
 import { UpdateProject } from '../dto/update.project/update.project'
 import { PrismaService } from '@/prisma/prisma.service'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import { v4 } from 'uuid'
 import { ProjectWithCounts, ProjectWithSecrets } from '../project.types'
 import { ForkProject } from '../dto/fork.project/fork.project'
@@ -36,7 +36,7 @@ export class ProjectService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly authzService: AuthzService
+    private readonly authorizationService: AuthorizationService
   ) {}
 
   /**
@@ -53,7 +53,7 @@ export class ProjectService {
     dto: CreateProject
   ) {
     // Check if the workspace exists or not
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.CREATE_PROJECT]
@@ -229,7 +229,7 @@ export class ProjectService {
     // Only admins can change the visibility of the project
     if (dto.accessLevel) authority = Authority.WORKSPACE_ADMIN
 
-    const project = await this.authzService.authorizeUserAccessToProject({
+    const project = await this.authorizationService.authorizeUserAccessToProject({
       user: user,
       entity: { slug: projectSlug },
       authorities: [authority]
@@ -376,7 +376,7 @@ export class ProjectService {
     projectSlug: Project['slug'],
     forkMetadata: ForkProject
   ) {
-    const project = await this.authzService.authorizeUserAccessToProject({
+    const project = await this.authorizationService.authorizeUserAccessToProject({
       user: user,
       entity: { slug: projectSlug },
       authorities: [Authority.READ_PROJECT]
@@ -385,7 +385,7 @@ export class ProjectService {
     let workspaceId = null
 
     if (forkMetadata.workspaceSlug) {
-      const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+      const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
         user: user,
         entity: { slug: forkMetadata.workspaceSlug },
         authorities: [Authority.CREATE_PROJECT]
@@ -517,7 +517,7 @@ export class ProjectService {
     user: AuthenticatedUser,
     projectSlug: Project['slug']
   ) {
-    const project = await this.authzService.authorizeUserAccessToProject({
+    const project = await this.authorizationService.authorizeUserAccessToProject({
       user: user,
       entity: { slug: projectSlug },
       authorities: [Authority.UPDATE_PROJECT]
@@ -553,7 +553,7 @@ export class ProjectService {
     projectSlug: Project['slug'],
     hardSync: boolean
   ) {
-    const project = await this.authzService.authorizeUserAccessToProject({
+    const project = await this.authorizationService.authorizeUserAccessToProject({
       user: user,
       entity: { slug: projectSlug },
       authorities: [Authority.UPDATE_PROJECT]
@@ -572,7 +572,7 @@ export class ProjectService {
       }
     })
 
-    const parentProject = await this.authzService.authorizeUserAccessToProject({
+    const parentProject = await this.authorizationService.authorizeUserAccessToProject({
       user: user,
       entity: { slug: forkedFromProject.slug },
       authorities: [Authority.READ_PROJECT]
@@ -602,7 +602,7 @@ export class ProjectService {
    * @throws UnauthorizedException If the user does not have the authority to delete the project
    */
   async deleteProject(user: AuthenticatedUser, projectSlug: Project['slug']) {
-    const project = await this.authzService.authorizeUserAccessToProject({
+    const project = await this.authorizationService.authorizeUserAccessToProject({
       user: user,
       entity: { slug: projectSlug },
       authorities: [Authority.DELETE_PROJECT]
@@ -670,7 +670,7 @@ export class ProjectService {
     page: number,
     limit: number
   ) {
-    const project = await this.authzService.authorizeUserAccessToProject({
+    const project = await this.authorizationService.authorizeUserAccessToProject({
       user: user,
       entity: { slug: projectSlug },
       authorities: [Authority.READ_PROJECT]
@@ -685,7 +685,7 @@ export class ProjectService {
 
     const forksAllowed = forks.filter(async (fork) => {
       const allowed =
-        (await this.authzService.authorizeUserAccessToProject({
+        (await this.authorizationService.authorizeUserAccessToProject({
           user: user,
           entity: { slug: fork.slug },
           authorities: [Authority.READ_PROJECT]
@@ -719,7 +719,7 @@ export class ProjectService {
    * @throws UnauthorizedException If the user does not have the authority to read the project
    */
   async getProject(user: AuthenticatedUser, projectSlug: Project['slug']) {
-    const project = await this.authzService.authorizeUserAccessToProject({
+    const project = await this.authorizationService.authorizeUserAccessToProject({
       user: user,
       entity: { slug: projectSlug },
       authorities: [Authority.READ_PROJECT]
@@ -756,7 +756,7 @@ export class ProjectService {
     order: string,
     search: string
   ) {
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.READ_PROJECT]
@@ -1236,7 +1236,7 @@ export class ProjectService {
     // This entire block will become invalid after RBAC for environments are implemented
     const envPromises = allEnvs.map(async (env) => {
       const hasRequiredPermission =
-        await this.authzService.authorizeUserAccessToEnvironment({
+        await this.authorizationService.authorizeUserAccessToEnvironment({
           user: user,
           entity: { slug: env.slug },
           authorities:

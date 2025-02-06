@@ -19,7 +19,7 @@ import { UpdateWorkspaceRole } from '../dto/update-workspace-role/update-workspa
 import { PrismaService } from '@/prisma/prisma.service'
 import { WorkspaceRoleWithProjects } from '../workspace-role.types'
 import { v4 } from 'uuid'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import { paginate, PaginatedMetadata } from '@/common/paginate'
 import generateEntitySlug from '@/common/slug-generator'
 import { createEvent } from '@/common/event'
@@ -33,7 +33,7 @@ export class WorkspaceRoleService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly authzService: AuthzService
+    private readonly authorizationService: AuthorizationService
   ) {}
 
   /**
@@ -59,7 +59,7 @@ export class WorkspaceRoleService {
       )
     }
 
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.CREATE_WORKSPACE_ROLE]
@@ -140,7 +140,7 @@ export class WorkspaceRoleService {
             // Check if the user has read authority over all the environments
             for (const environmentSlug of pe.environmentSlugs) {
               try {
-                await this.authzService.authorizeUserAccessToEnvironment({
+                await this.authorizationService.authorizeUserAccessToEnvironment({
                   user: user,
                   entity: {
                     slug: environmentSlug
@@ -321,7 +321,7 @@ export class WorkspaceRoleService {
             // Check if the user has read authority over all the environments
             for (const environmentSlug of pe.environmentSlugs) {
               try {
-                await this.authzService.authorizeUserAccessToEnvironment({
+                await this.authorizationService.authorizeUserAccessToEnvironment({
                   user: user,
                   entity: {
                     slug: environmentSlug
@@ -483,7 +483,7 @@ export class WorkspaceRoleService {
     workspaceSlug: Workspace['slug'],
     name: string
   ) {
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.READ_WORKSPACE_ROLE]
@@ -540,7 +540,7 @@ export class WorkspaceRoleService {
     search: string
   ): Promise<{ items: WorkspaceRole[]; metadata: PaginatedMetadata }> {
     const { id: workspaceId } =
-      await this.authzService.authorizeUserAccessToWorkspace({
+      await this.authorizationService.authorizeUserAccessToWorkspace({
         user: user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.READ_WORKSPACE_ROLE]

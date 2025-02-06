@@ -16,7 +16,7 @@ import {
   getCollectiveWorkspaceAuthorities
 } from '../../common/collective-authorities'
 import { IntegrationWithWorkspace } from '@/integration/integration.types'
-import { AuthorizationParams } from './authz.types'
+import { AuthorizationParams } from './authorization.types'
 import { PrismaService } from '@/prisma/prisma.service'
 
 @Injectable()

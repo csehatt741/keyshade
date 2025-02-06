@@ -5,7 +5,7 @@ import { MAIL_SERVICE } from '@/mail/services/interface.service'
 import { MockMailService } from '@/mail/services/mock.service'
 import { PrismaService } from '@/prisma/prisma.service'
 import { mockDeep } from 'jest-mock-extended'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import { CommonModule } from '@/common/common.module'
 
 describe('ProjectController', () => {
@@ -19,7 +19,7 @@ describe('ProjectController', () => {
         ProjectService,
         PrismaService,
         { provide: MAIL_SERVICE, useClass: MockMailService },
-        AuthzService
+        AuthorizationService
       ]
     })
       .overrideProvider(PrismaService)

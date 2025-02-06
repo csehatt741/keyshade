@@ -6,7 +6,7 @@ import { limitMaxItemsPerPage } from '@/common/util'
 import { createWorkspace } from '@/common/workspace'
 import { IMailService, MAIL_SERVICE } from '@/mail/services/interface.service'
 import { PrismaService } from '@/prisma/prisma.service'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import {
   BadRequestException,
   ConflictException,
@@ -38,7 +38,7 @@ export class WorkspaceService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly authzService: AuthzService,
+    private readonly authorizationService: AuthorizationService,
     private readonly jwt: JwtService,
     @Inject(MAIL_SERVICE) private readonly mailService: IMailService
   ) {}
@@ -72,7 +72,7 @@ export class WorkspaceService {
     dto: UpdateWorkspace
   ) {
     // Fetch the workspace
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.UPDATE_WORKSPACE]
@@ -134,7 +134,7 @@ export class WorkspaceService {
     user: AuthenticatedUser,
     workspaceSlug: Workspace['slug']
   ): Promise<void> {
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.DELETE_WORKSPACE]
@@ -168,7 +168,7 @@ export class WorkspaceService {
     user: AuthenticatedUser,
     workspaceSlug: Workspace['slug']
   ): Promise<Workspace> {
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.READ_USERS]
@@ -264,7 +264,7 @@ export class WorkspaceService {
    * @throws InternalServerErrorException if there is an error in the transaction
    */
   async exportData(user: AuthenticatedUser, workspaceSlug: Workspace['slug']) {
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.WORKSPACE_ADMIN]
@@ -359,7 +359,7 @@ export class WorkspaceService {
     variables: Partial<Variable>[]
   }> {
     // Check authority over workspace
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [
@@ -507,7 +507,7 @@ export class WorkspaceService {
     user: AuthenticatedUser,
     workspaceSlug: Workspace['slug']
   ): Promise<string[]> {
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.WORKSPACE_ADMIN]
@@ -530,7 +530,7 @@ export class WorkspaceService {
     dto: UpdateBlacklistedIpAddresses
   ) {
     // Fetch the workspace
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.WORKSPACE_ADMIN]
@@ -749,7 +749,7 @@ export class WorkspaceService {
     let accessibleProjectCount = 0
 
     for (const project of projects) {
-      const hasAuthority = await this.authzService.authorizeUserAccessToProject(
+      const hasAuthority = await this.authorizationService.authorizeUserAccessToProject(
         {
           user,
           entity: { slug: project.slug },

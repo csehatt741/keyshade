@@ -1,8 +1,8 @@
-import { IsArray, ArrayNotEmpty, IsString, IsNotEmpty } from 'class-validator'
+import { IsArray, ArrayNotEmpty, IsIP } from 'class-validator'
 
 export class UpdateBlacklistedIpAddresses {
   @IsArray()
   @ArrayNotEmpty()
-  @IsString({ each: true })
+  @IsIP(undefined, { each: true })
   ipAddresses: string[]
 }

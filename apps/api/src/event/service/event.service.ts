@@ -6,7 +6,7 @@ import {
   Workspace
 } from '@prisma/client'
 import { PrismaService } from '@/prisma/prisma.service'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import { paginate } from '@/common/paginate'
 import { limitMaxItemsPerPage } from '@/common/util'
 import { AuthenticatedUser } from '@/user/user.types'
@@ -15,7 +15,7 @@ import { AuthenticatedUser } from '@/user/user.types'
 export class EventService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly authzService: AuthzService
+    private readonly authorizationService: AuthorizationService
   ) {}
 
   async getEvents(
@@ -36,7 +36,7 @@ export class EventService {
     }
 
     // Check for workspace authority
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.READ_EVENT]

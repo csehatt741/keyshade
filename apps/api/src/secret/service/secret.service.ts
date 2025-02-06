@@ -20,7 +20,7 @@ import {
 import { CreateSecret } from '../dto/create.secret/create.secret'
 import { UpdateSecret } from '../dto/update.secret/update.secret'
 import { PrismaService } from '@/prisma/prisma.service'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import { RedisClientType } from 'redis'
 import { REDIS_CLIENT } from '@/provider/redis.provider'
 import { CHANGE_NOTIFIER_RSC } from '@/socket/change-notifier.socket'
@@ -50,7 +50,7 @@ export class SecretService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly authzService: AuthzService,
+    private readonly authorizationService: AuthorizationService,
     @Inject(REDIS_CLIENT)
     readonly redisClient: {
       publisher: RedisClientType
@@ -72,7 +72,7 @@ export class SecretService {
     projectSlug: Project['slug']
   ): Promise<SecretWithValues> {
     // Fetch the project
-    const project = await this.authzService.authorizeUserAccessToProject({
+    const project = await this.authorizationService.authorizeUserAccessToProject({
       user: user,
       entity: { slug: projectSlug },
       authorities: [Authority.CREATE_SECRET]
@@ -91,7 +91,7 @@ export class SecretService {
           user,
           project,
           this.prisma,
-          this.authzService
+          this.authorizationService
         )
       : new Map<string, string>()
 
@@ -186,7 +186,7 @@ export class SecretService {
     secretSlug: Secret['slug'],
     dto: UpdateSecret
   ) {
-    const secret = await this.authzService.authorizeUserAccessToSecret({
+    const secret = await this.authorizationService.authorizeUserAccessToSecret({
       user: user,
       entity: { slug: secretSlug },
       authorities: [Authority.UPDATE_SECRET]
@@ -204,7 +204,7 @@ export class SecretService {
           user,
           secret.project,
           this.prisma,
-          this.authzService
+          this.authorizationService
         )
       : new Map<string, string>()
 
@@ -353,7 +353,7 @@ export class SecretService {
     rollbackVersion: SecretVersion['version']
   ) {
     // Fetch the secret
-    const secret = await this.authzService.authorizeUserAccessToSecret({
+    const secret = await this.authorizationService.authorizeUserAccessToSecret({
       user: user,
       entity: { slug: secretSlug },
       authorities: [Authority.UPDATE_SECRET]
@@ -361,7 +361,7 @@ export class SecretService {
 
     // Fetch the environment
     const environment =
-      await this.authzService.authorizeUserAccessToEnvironment({
+      await this.authorizationService.authorizeUserAccessToEnvironment({
         user: user,
         entity: { slug: environmentSlug },
         authorities: [Authority.UPDATE_SECRET]
@@ -448,7 +448,7 @@ export class SecretService {
    */
   async deleteSecret(user: AuthenticatedUser, secretSlug: Secret['slug']) {
     // Check if the user has the required role
-    const secret = await this.authzService.authorizeUserAccessToSecret({
+    const secret = await this.authorizationService.authorizeUserAccessToSecret({
       user: user,
       entity: { slug: secretSlug },
       authorities: [Authority.DELETE_SECRET]
@@ -494,7 +494,7 @@ export class SecretService {
     environmentSlug: Environment['slug']
   ) {
     // Fetch the project
-    const project = await this.authzService.authorizeUserAccessToProject({
+    const project = await this.authorizationService.authorizeUserAccessToProject({
       user: user,
       entity: { slug: projectSlug },
       authorities: [Authority.READ_SECRET]
@@ -503,7 +503,7 @@ export class SecretService {
 
     // Check access to the environment
     const environment =
-      await this.authzService.authorizeUserAccessToEnvironment({
+      await this.authorizationService.authorizeUserAccessToEnvironment({
         user: user,
         entity: { slug: environmentSlug },
         authorities: [Authority.READ_ENVIRONMENT]
@@ -580,7 +580,7 @@ export class SecretService {
     order: 'asc' | 'desc' = 'desc'
   ) {
     // Fetch the secret
-    const secret = await this.authzService.authorizeUserAccessToSecret({
+    const secret = await this.authorizationService.authorizeUserAccessToSecret({
       user: user,
       entity: { slug: secretSlug },
       authorities: [Authority.READ_SECRET]
@@ -589,7 +589,7 @@ export class SecretService {
 
     // Fetch the environment
     const environment =
-      await this.authzService.authorizeUserAccessToEnvironment({
+      await this.authorizationService.authorizeUserAccessToEnvironment({
         user: user,
         entity: { slug: environmentSlug },
         authorities: [Authority.READ_ENVIRONMENT]
@@ -648,7 +648,7 @@ export class SecretService {
     search: string
   ) {
     // Fetch the project
-    const project = await this.authzService.authorizeUserAccessToProject({
+    const project = await this.authorizationService.authorizeUserAccessToProject({
       user: user,
       entity: { slug: projectSlug },
       authorities: [Authority.READ_SECRET]

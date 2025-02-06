@@ -2,7 +2,7 @@ import { paginate } from '@/common/paginate'
 import { createUser, getUserByEmailOrId } from '@/common/user'
 import { IMailService, MAIL_SERVICE } from '@/mail/services/interface.service'
 import { PrismaService } from '@/prisma/prisma.service'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import {
   BadRequestException,
   ConflictException,
@@ -35,7 +35,7 @@ export class WorkspaceMembershipService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly authzService: AuthzService,
+    private readonly authorizationService: AuthorizationService,
     private readonly jwt: JwtService,
     @Inject(MAIL_SERVICE) private readonly mailService: IMailService
   ) {}
@@ -55,7 +55,7 @@ export class WorkspaceMembershipService {
     workspaceSlug: Workspace['slug'],
     otherUserEmail: User['email']
   ): Promise<void> {
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.WORKSPACE_ADMIN]
@@ -193,7 +193,7 @@ export class WorkspaceMembershipService {
     workspaceSlug: Workspace['slug'],
     members: CreateWorkspaceMember[]
   ): Promise<void> {
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.ADD_USER]
@@ -247,7 +247,7 @@ export class WorkspaceMembershipService {
     workspaceSlug: Workspace['slug'],
     userEmails: User['email'][]
   ): Promise<void> {
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.REMOVE_USER]
@@ -337,7 +337,7 @@ export class WorkspaceMembershipService {
   ): Promise<void> {
     const otherUser = await getUserByEmailOrId(otherUserEmail, this.prisma)
 
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.UPDATE_USER_ROLE]
@@ -453,7 +453,7 @@ export class WorkspaceMembershipService {
     order: string,
     search: string
   ) {
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.READ_USERS]
@@ -616,7 +616,7 @@ export class WorkspaceMembershipService {
   ): Promise<void> {
     const inviteeUser = await getUserByEmailOrId(inviteeEmail, this.prisma)
 
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.REMOVE_USER]
@@ -703,7 +703,7 @@ export class WorkspaceMembershipService {
     user: AuthenticatedUser,
     workspaceSlug: Workspace['slug']
   ): Promise<void> {
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.READ_WORKSPACE]
@@ -769,7 +769,7 @@ export class WorkspaceMembershipService {
       return false
     }
 
-    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+    const workspace = await this.authorizationService.authorizeUserAccessToWorkspace({
       user: user,
       entity: { slug: workspaceSlug },
       authorities: [Authority.READ_USERS]

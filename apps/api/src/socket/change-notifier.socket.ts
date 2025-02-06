@@ -17,7 +17,7 @@ import {
 import { Authority } from '@prisma/client'
 import { CurrentUser } from '@/decorators/user.decorator'
 import { PrismaService } from '@/prisma/prisma.service'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import { REDIS_CLIENT } from '@/provider/redis.provider'
 import { RedisClientType } from 'redis'
 import { ApiKeyGuard } from '@/auth/guard/api-key/api-key.guard'
@@ -52,7 +52,7 @@ export default class ChangeNotifier
       publisher: RedisClientType
     },
     private readonly prisma: PrismaService,
-    private readonly authzService: AuthzService
+    private readonly authorizationService: AuthorizationService
   ) {
     this.redis = redisClient.publisher
     this.redisSubscriber = redisClient.subscriber
@@ -117,7 +117,7 @@ export default class ChangeNotifier
 
     try {
       // Check if the user has access to the workspace
-      await this.authzService.authorizeUserAccessToWorkspace({
+      await this.authorizationService.authorizeUserAccessToWorkspace({
         user: user,
         entity: { slug: data.workspaceSlug },
         authorities: [
@@ -128,7 +128,7 @@ export default class ChangeNotifier
       })
 
       // Check if the user has access to the project
-      await this.authzService.authorizeUserAccessToProject({
+      await this.authorizationService.authorizeUserAccessToProject({
         user: user,
         entity: { slug: data.projectSlug },
         authorities: [Authority.READ_PROJECT]
@@ -136,7 +136,7 @@ export default class ChangeNotifier
 
       // Check if the user has access to the environment
       const environment =
-        await this.authzService.authorizeUserAccessToEnvironment({
+        await this.authorizationService.authorizeUserAccessToEnvironment({
           user: user,
           entity: { slug: data.environmentSlug },
           authorities: [Authority.READ_ENVIRONMENT]

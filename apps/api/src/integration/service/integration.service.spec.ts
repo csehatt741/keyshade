@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { IntegrationService } from './integration.service'
 import { CommonModule } from '@/common/common.module'
 import { PrismaService } from '@/prisma/prisma.service'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import { mockDeep } from 'jest-mock-extended'
 
 describe('IntegrationService', () => {
@@ -11,7 +11,7 @@ describe('IntegrationService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [CommonModule],
-      providers: [PrismaService, AuthzService, IntegrationService]
+      providers: [PrismaService, AuthorizationService, IntegrationService]
     })
       .overrideProvider(PrismaService)
       .useValue(mockDeep<PrismaService>())

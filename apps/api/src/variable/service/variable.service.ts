@@ -21,7 +21,7 @@ import { UpdateVariable } from '../dto/update.variable/update.variable'
 import { RedisClientType } from 'redis'
 import { REDIS_CLIENT } from '@/provider/redis.provider'
 import { CHANGE_NOTIFIER_RSC } from '@/socket/change-notifier.socket'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import {
   ChangeNotification,
   ChangeNotificationEvent
@@ -41,7 +41,7 @@ export class VariableService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly authzService: AuthzService,
+    private readonly authorizationService: AuthorizationService,
     @Inject(REDIS_CLIENT)
     readonly redisClient: {
       publisher: RedisClientType
@@ -63,7 +63,7 @@ export class VariableService {
     projectSlug: Project['slug']
   ): Promise<VariableWithValues> {
     // Fetch the project
-    const project = await this.authzService.authorizeUserAccessToProject({
+    const project = await this.authorizationService.authorizeUserAccessToProject({
       user: user,
       entity: { slug: projectSlug },
       authorities: [Authority.CREATE_VARIABLE]
@@ -82,7 +82,7 @@ export class VariableService {
           user,
           project,
           this.prisma,
-          this.authzService
+          this.authorizationService
         )
       : new Map<string, string>()
 
@@ -172,7 +172,7 @@ export class VariableService {
     variableSlug: Variable['slug'],
     dto: UpdateVariable
   ) {
-    const variable = await this.authzService.authorizeUserAccessToVariable({
+    const variable = await this.authorizationService.authorizeUserAccessToVariable({
       user: user,
       entity: { slug: variableSlug },
       authorities: [Authority.UPDATE_VARIABLE]
@@ -190,7 +190,7 @@ export class VariableService {
           user,
           variable.project,
           this.prisma,
-          this.authzService
+          this.authorizationService
         )
       : new Map<string, string>()
 
@@ -336,14 +336,14 @@ export class VariableService {
     rollbackVersion: VariableVersion['version']
   ) {
     const environment =
-      await this.authzService.authorizeUserAccessToEnvironment({
+      await this.authorizationService.authorizeUserAccessToEnvironment({
         user: user,
         entity: { slug: environmentSlug },
         authorities: [Authority.UPDATE_VARIABLE]
       })
     const environmentId = environment.id
 
-    const variable = await this.authzService.authorizeUserAccessToVariable({
+    const variable = await this.authorizationService.authorizeUserAccessToVariable({
       user: user,
       entity: { slug: variableSlug },
       authorities: [Authority.UPDATE_VARIABLE]
@@ -431,7 +431,7 @@ export class VariableService {
     user: AuthenticatedUser,
     variableSlug: Variable['slug']
   ) {
-    const variable = await this.authzService.authorizeUserAccessToVariable({
+    const variable = await this.authorizationService.authorizeUserAccessToVariable({
       user: user,
       entity: { slug: variableSlug },
       authorities: [Authority.DELETE_VARIABLE]
@@ -481,7 +481,7 @@ export class VariableService {
   ) {
     // Check if the user has the required authorities in the project
     const { id: projectId } =
-      await this.authzService.authorizeUserAccessToProject({
+      await this.authorizationService.authorizeUserAccessToProject({
         user: user,
         entity: { slug: projectSlug },
         authorities: [Authority.READ_VARIABLE]
@@ -489,7 +489,7 @@ export class VariableService {
 
     // Check if the user has the required authorities in the environment
     const { id: environmentId } =
-      await this.authzService.authorizeUserAccessToEnvironment({
+      await this.authorizationService.authorizeUserAccessToEnvironment({
         user: user,
         entity: { slug: environmentSlug },
         authorities: [Authority.READ_ENVIRONMENT]
@@ -566,7 +566,7 @@ export class VariableService {
   ) {
     // Check if the user has the required authorities in the project
     const { id: projectId } =
-      await this.authzService.authorizeUserAccessToProject({
+      await this.authorizationService.authorizeUserAccessToProject({
         user: user,
         entity: { slug: projectSlug },
         authorities: [Authority.READ_VARIABLE]
@@ -717,14 +717,14 @@ export class VariableService {
     order: 'asc' | 'desc' = 'desc'
   ) {
     const { id: variableId } =
-      await this.authzService.authorizeUserAccessToVariable({
+      await this.authorizationService.authorizeUserAccessToVariable({
         user: user,
         entity: { slug: variableSlug },
         authorities: [Authority.READ_VARIABLE]
       })
 
     const { id: environmentId } =
-      await this.authzService.authorizeUserAccessToEnvironment({
+      await this.authorizationService.authorizeUserAccessToEnvironment({
         user: user,
         entity: { slug: environmentSlug },
         authorities: [Authority.READ_ENVIRONMENT]

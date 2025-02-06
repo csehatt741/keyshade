@@ -14,7 +14,7 @@ import {
 import { CreateEnvironment } from '../dto/create.environment/create.environment'
 import { UpdateEnvironment } from '../dto/update.environment/update.environment'
 import { PrismaService } from '@/prisma/prisma.service'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import { paginate } from '@/common/paginate'
 import generateEntitySlug from '@/common/slug-generator'
 import { createEvent } from '@/common/event'
@@ -27,7 +27,7 @@ export class EnvironmentService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly authzService: AuthzService
+    private readonly authorizationService: AuthorizationService
   ) {}
 
   /**
@@ -61,7 +61,7 @@ export class EnvironmentService {
     projectSlug: Project['slug']
   ) {
     // Check if the user has the required role to create an environment
-    const project = await this.authzService.authorizeUserAccessToProject({
+    const project = await this.authorizationService.authorizeUserAccessToProject({
       user: user,
       entity: { slug: projectSlug },
       authorities: [
@@ -160,7 +160,7 @@ export class EnvironmentService {
     environmentSlug: Environment['slug']
   ) {
     const environment =
-      await this.authzService.authorizeUserAccessToEnvironment({
+      await this.authorizationService.authorizeUserAccessToEnvironment({
         user: user,
         entity: { slug: environmentSlug },
         authorities: [
@@ -232,7 +232,7 @@ export class EnvironmentService {
     environmentSlug: Environment['slug']
   ) {
     const environment =
-      await this.authzService.authorizeUserAccessToEnvironment({
+      await this.authorizationService.authorizeUserAccessToEnvironment({
         user: user,
         entity: { slug: environmentSlug },
         authorities: [Authority.READ_ENVIRONMENT]
@@ -282,7 +282,7 @@ export class EnvironmentService {
     order: string,
     search: string
   ) {
-    const project = await this.authzService.authorizeUserAccessToProject({
+    const project = await this.authorizationService.authorizeUserAccessToProject({
       user: user,
       entity: { slug: projectSlug },
       authorities: [Authority.READ_ENVIRONMENT]
@@ -370,7 +370,7 @@ export class EnvironmentService {
     environmentSlug: Environment['slug']
   ) {
     const environment =
-      await this.authzService.authorizeUserAccessToEnvironment({
+      await this.authorizationService.authorizeUserAccessToEnvironment({
         user: user,
         entity: { slug: environmentSlug },
         authorities: [Authority.DELETE_ENVIRONMENT]

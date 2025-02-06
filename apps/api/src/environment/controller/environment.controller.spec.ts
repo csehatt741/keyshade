@@ -4,7 +4,7 @@ import { EnvironmentService } from '../service/environment.service'
 import { PrismaService } from '@/prisma/prisma.service'
 import { mockDeep } from 'jest-mock-extended'
 import { CommonModule } from '@/common/common.module'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 
 describe('EnvironmentController', () => {
   let controller: EnvironmentController
@@ -13,7 +13,7 @@ describe('EnvironmentController', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [CommonModule],
       controllers: [EnvironmentController],
-      providers: [EnvironmentService, PrismaService, AuthzService]
+      providers: [EnvironmentService, PrismaService, AuthorizationService]
     })
       .overrideProvider(PrismaService)
       .useValue(mockDeep<PrismaService>())

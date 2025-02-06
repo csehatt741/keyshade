@@ -5,7 +5,7 @@ import { PrismaService } from '@/prisma/prisma.service'
 import { MAIL_SERVICE } from '@/mail/services/interface.service'
 import { MockMailService } from '@/mail/services/mock.service'
 import { JwtService } from '@nestjs/jwt'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import { CommonModule } from '@/common/common.module'
 
 describe('WorkspaceMembershipController', () => {
@@ -22,7 +22,7 @@ describe('WorkspaceMembershipController', () => {
           useClass: MockMailService
         },
         JwtService,
-        AuthzService
+        AuthorizationService
       ],
       controllers: [WorkspaceMembershipController]
     }).compile()

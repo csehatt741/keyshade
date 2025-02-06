@@ -3,7 +3,7 @@ import { WorkspaceRoleService } from './workspace-role.service'
 import { PrismaService } from '@/prisma/prisma.service'
 import { MAIL_SERVICE } from '@/mail/services/interface.service'
 import { MockMailService } from '@/mail/services/mock.service'
-import { AuthzService } from '@/auth/service/authz.service'
+import { AuthorizationService } from '@/auth/service/authorization.service'
 import { CommonModule } from '@/common/common.module'
 
 describe('WorkspaceRoleService', () => {
@@ -16,7 +16,7 @@ describe('WorkspaceRoleService', () => {
         WorkspaceRoleService,
         PrismaService,
         { provide: MAIL_SERVICE, useClass: MockMailService },
-        AuthzService
+        AuthorizationService
       ]
     }).compile()
 
