@@ -1,9 +1,4 @@
-import {
-  User,
-  Workspace,
-  Authority,
-  ProjectAccessLevel
-} from '@prisma/client'
+import { User, Workspace, Authority, ProjectAccessLevel } from '@prisma/client'
 import { VariableWithProjectAndVersion } from '@/variable/variable.types'
 import {
   Injectable,
@@ -45,10 +40,10 @@ export class AuthorityCheckerService {
   ): Promise<Workspace> {
     const { user, entity, authorities } = params
 
-    const workspace = await this.getWorkspace(
-      user.id,
-      { workspaceSlug: entity.slug, workspaceName: entity.name }
-    )
+    const workspace = await this.getWorkspace(user.id, {
+      workspaceSlug: entity.slug,
+      workspaceName: entity.name
+    })
 
     const permittedAuthorities = await getCollectiveWorkspaceAuthorities(
       workspace.id,
@@ -155,10 +150,9 @@ export class AuthorityCheckerService {
         break
     }
 
-    const workspace = await this.getWorkspace(
-      user.id,
-      { workspaceId: project.workspaceId }
-    )
+    const workspace = await this.getWorkspace(user.id, {
+      workspaceId: project.workspaceId
+    })
 
     return { project, workspace }
   }
@@ -224,10 +218,9 @@ export class AuthorityCheckerService {
       user.id
     )
 
-    const workspace = await this.getWorkspace(
-      user.id,
-      { workspaceId: environment.project.workspaceId }
-    )
+    const workspace = await this.getWorkspace(user.id, {
+      workspaceId: environment.project.workspaceId
+    })
 
     return { environment, workspace }
   }
@@ -295,10 +288,9 @@ export class AuthorityCheckerService {
       user.id
     )
 
-    const workspace = await this.getWorkspace(
-      user.id,
-      { workspaceId: variable.project.workspaceId }
-    )
+    const workspace = await this.getWorkspace(user.id, {
+      workspaceId: variable.project.workspaceId
+    })
 
     return { variable, workspace }
   }
@@ -364,10 +356,9 @@ export class AuthorityCheckerService {
       user.id
     )
 
-    const workspace = await this.getWorkspace(
-      user.id,
-      { workspaceId: secret.project.workspaceId }
-    )
+    const workspace = await this.getWorkspace(user.id, {
+      workspaceId: secret.project.workspaceId
+    })
 
     return { secret, workspace }
   }
@@ -459,10 +450,9 @@ export class AuthorityCheckerService {
       )
     }
 
-    const workspace = await this.getWorkspace(
-      user.id,
-      { workspaceId: integration.workspaceId }
-    )
+    const workspace = await this.getWorkspace(user.id, {
+      workspaceId: integration.workspaceId
+    })
 
     return { integration, workspace }
   }

@@ -522,6 +522,7 @@ export class WorkspaceService {
    * @param user The user to update the workspace for
    * @param workspaceSlug The slug of the workspace to update
    * @param dto The data to update the list of blacklisted IP addresses with
+   * @returns The updated list of blacklisted IP addresses
    */
   async updateBlacklistedIpAddresses(
     user: AuthenticatedUser,
@@ -536,7 +537,7 @@ export class WorkspaceService {
     })
 
     // Update blacklisted IP addresses
-    await this.prisma.workspace.update({
+    const updatedWorkspace = await this.prisma.workspace.update({
       where: {
         id: workspace.id
       },
@@ -545,7 +546,9 @@ export class WorkspaceService {
       }
     })
 
-    this.log.debug(`Updated workspace blacklisted IP addresses ${workspace.name} (${workspace.id})`)
+    this.log.debug(
+      `Updated workspace blacklisted IP addresses ${workspace.name} (${workspace.id})`
+    )
 
     await createEvent(
       {
@@ -562,6 +565,8 @@ export class WorkspaceService {
       },
       this.prisma
     )
+
+    return updatedWorkspace.blacklistedIpAddresses
   }
 
   /**

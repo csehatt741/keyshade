@@ -30,10 +30,7 @@ export class AuthzService {
     const workspace =
       await this.authorityCheckerService.checkAuthorityOverWorkspace(params)
 
-    this.checkUserHasAccessToWorkspace(
-      params.user,
-      workspace
-    )
+    this.checkUserHasAccessToWorkspace(params.user, workspace)
 
     return workspace
   }
@@ -53,10 +50,7 @@ export class AuthzService {
     const result =
       await this.authorityCheckerService.checkAuthorityOverProject(params)
 
-    this.checkUserHasAccessToWorkspace(
-      params.user,
-      result.workspace
-    )
+    this.checkUserHasAccessToWorkspace(params.user, result.workspace)
 
     return result.project
   }
@@ -76,10 +70,7 @@ export class AuthzService {
     const result =
       await this.authorityCheckerService.checkAuthorityOverEnvironment(params)
 
-    this.checkUserHasAccessToWorkspace(
-      params.user,
-      result.workspace
-    )
+    this.checkUserHasAccessToWorkspace(params.user, result.workspace)
 
     return result.environment
   }
@@ -99,10 +90,7 @@ export class AuthzService {
     const result =
       await this.authorityCheckerService.checkAuthorityOverVariable(params)
 
-    this.checkUserHasAccessToWorkspace(
-      params.user,
-      result.workspace
-    )
+    this.checkUserHasAccessToWorkspace(params.user, result.workspace)
 
     return result.variable
   }
@@ -122,10 +110,7 @@ export class AuthzService {
     const result =
       await this.authorityCheckerService.checkAuthorityOverSecret(params)
 
-    this.checkUserHasAccessToWorkspace(
-      params.user,
-      result.workspace
-    )
+    this.checkUserHasAccessToWorkspace(params.user, result.workspace)
 
     return result.secret
   }
@@ -145,10 +130,7 @@ export class AuthzService {
     const result =
       await this.authorityCheckerService.checkAuthorityOverIntegration(params)
 
-    this.checkUserHasAccessToWorkspace(
-      params.user,
-      result.workspace
-    )
+    this.checkUserHasAccessToWorkspace(params.user, result.workspace)
 
     return result.integration
   }

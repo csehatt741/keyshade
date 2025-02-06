@@ -139,6 +139,10 @@ export class WorkspaceController {
     @Param('workspaceSlug') workspaceSlug: Workspace['slug'],
     @Body() dto: UpdateBlacklistedIpAddresses
   ) {
-    return this.workspaceService.updateBlacklistedIpAddresses(user, workspaceSlug, dto)
+    return this.workspaceService.updateBlacklistedIpAddresses(
+      user,
+      workspaceSlug,
+      dto
+    )
   }
 }
