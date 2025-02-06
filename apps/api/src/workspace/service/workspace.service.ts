@@ -419,7 +419,7 @@ export class WorkspaceService {
         }
       },
       where: {
-        user: user,
+        userId: user.id,
         invitationAccepted: false,
         workspace: {
           name: {
@@ -460,7 +460,7 @@ export class WorkspaceService {
     // get total count of workspaces of the user
     const totalCount = await this.prisma.workspaceMember.count({
       where: {
-        user: user,
+        userId: user.id,
         invitationAccepted: false,
         workspace: {
           name: {

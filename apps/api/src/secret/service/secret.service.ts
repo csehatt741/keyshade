@@ -24,7 +24,6 @@ import { AuthzService } from '@/auth/service/authz.service'
 import { RedisClientType } from 'redis'
 import { REDIS_CLIENT } from '@/provider/redis.provider'
 import { CHANGE_NOTIFIER_RSC } from '@/socket/change-notifier.socket'
-import { AuthorityCheckerService } from '@/auth/service/authority-checker.service'
 import {
   ChangeNotification,
   ChangeNotificationEvent
@@ -55,8 +54,7 @@ export class SecretService {
     @Inject(REDIS_CLIENT)
     readonly redisClient: {
       publisher: RedisClientType
-    },
-    private readonly authorityCheckerService: AuthorityCheckerService
+    }
   ) {
     this.redis = redisClient.publisher
   }

@@ -1,5 +1,4 @@
 import {
-  PrismaClient,
   User,
   Workspace,
   Authority,
@@ -24,11 +23,12 @@ import {
 } from '../../common/collective-authorities'
 import { IntegrationWithWorkspace } from '@/integration/integration.types'
 import { AuthorizationParams } from './authz.types'
+import { PrismaService } from '@/prisma/prisma.service'
 
 @Injectable()
 export class AuthorityCheckerService {
   constructor(
-    private readonly prisma: PrismaClient,
+    private readonly prisma: PrismaService,
     private readonly customLoggerService: CustomLoggerService
   ) {}
 

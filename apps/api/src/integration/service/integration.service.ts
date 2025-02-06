@@ -186,12 +186,12 @@ export class IntegrationService {
       await this.existsByNameAndWorkspaceId(dto.name, integration.workspace)
     }
 
-    const project: Project | null = null
+    let project: Project | null = null
     let environment: Environment | null = null
 
     // If the project is being changed, check if the user has READ authority over the new project
     if (dto.projectSlug) {
-      await this.authzService.authorizeUserAccessToProject({
+      project = await this.authzService.authorizeUserAccessToProject({
         user: user,
         entity: { slug: dto.projectSlug },
         authorities: [Authority.READ_PROJECT]

@@ -395,7 +395,7 @@ export class ProjectService {
     } else {
       const defaultWorkspace = await this.prisma.workspaceMember.findFirst({
         where: {
-          user: user,
+          userId: user.id,
           workspace: {
             isDefault: true
           }
@@ -788,7 +788,7 @@ export class ProjectService {
           workspace: {
             members: {
               some: {
-                user: user,
+                userId: user.id,
                 roles: {
                   some: {
                     role: {

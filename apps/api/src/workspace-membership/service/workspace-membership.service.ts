@@ -1014,7 +1014,7 @@ export class WorkspaceMembershipService {
           workspace: {
             slug: workspaceSlug
           },
-          user: user,
+          userId: user.id,
           invitationAccepted: false
         }
       })
