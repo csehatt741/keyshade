@@ -30,6 +30,7 @@ import {
 import { CreateWorkspace } from '../dto/create.workspace/create.workspace'
 import { UpdateWorkspace } from '../dto/update.workspace/update.workspace'
 import { AuthenticatedUser } from '@/user/user.types'
+import { UpdateBlacklistedIpAddresses } from '../dto/update.blacklistedIpAddresses/update.blacklistedIpAddresses'
 
 @Injectable()
 export class WorkspaceService {
@@ -494,6 +495,73 @@ export class WorkspaceService {
       })),
       metadata
     }
+  }
+
+  /**
+   * Gets a list of blacklisted IP addresses.
+   * @param user The user to get the workspace for
+   * @param workspaceSlug The slug of the workspace to delete
+   * @returns The list of IP addresses
+   */
+  async getBlacklistedIpAddresses(
+    user: AuthenticatedUser,
+    workspaceSlug: Workspace['slug']
+  ): Promise<string[]> {
+    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+      user: user,
+      entity: { slug: workspaceSlug },
+      authorities: [Authority.WORKSPACE_ADMIN]
+    })
+
+    return workspace.blacklistedIpAddresses
+  }
+
+  /**
+   * Updates the list of blacklisted IP addresses
+   * @throws ConflictException if the workspace with the same name already exists
+   * @param user The user to update the workspace for
+   * @param workspaceSlug The slug of the workspace to update
+   * @param dto The data to update the list of blacklisted IP addresses with
+   */
+  async updateBlacklistedIpAddresses(
+    user: AuthenticatedUser,
+    workspaceSlug: Workspace['slug'],
+    dto: UpdateBlacklistedIpAddresses
+  ) {
+    // Fetch the workspace
+    const workspace = await this.authzService.authorizeUserAccessToWorkspace({
+      user: user,
+      entity: { slug: workspaceSlug },
+      authorities: [Authority.WORKSPACE_ADMIN]
+    })
+
+    // Update blacklisted IP addresses
+    await this.prisma.workspace.update({
+      where: {
+        id: workspace.id
+      },
+      data: {
+        blacklistedIpAddresses: dto.ipAddresses
+      }
+    })
+
+    this.log.debug(`Updated workspace blacklisted IP addresses ${workspace.name} (${workspace.id})`)
+
+    await createEvent(
+      {
+        triggeredBy: user,
+        entity: workspace,
+        type: EventType.WORKSPACE_UPDATED,
+        source: EventSource.WORKSPACE,
+        title: `Workspace blacklisted IP addresses updated`,
+        metadata: {
+          workspaceId: workspace.id,
+          name: workspace.name
+        },
+        workspaceId: workspace.id
+      },
+      this.prisma
+    )
   }
 
   /**

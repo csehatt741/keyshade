@@ -1,4 +1,3 @@
-import { WorkspaceWithBlacklistedIpAddresses } from '@/workspace/workspace.types'
 import { Project, Secret } from '@prisma/client'
 
 export interface ProjectWithSecrets extends Project {

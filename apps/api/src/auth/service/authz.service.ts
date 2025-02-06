@@ -1,6 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common'
 import { AuthorityCheckerService } from './authority-checker.service'
-import { Workspace, IpAddress } from '@prisma/client'
 import { ProjectWithSecrets } from '@/project/project.types'
 import { EnvironmentWithProject } from '@/environment/environment.types'
 import { VariableWithProjectAndVersion } from '@/variable/variable.types'
@@ -8,6 +7,7 @@ import { SecretWithProjectAndVersion } from '@/secret/secret.types'
 import { IntegrationWithWorkspace } from '@/integration/integration.types'
 import { AuthorizationParams } from './authz.types'
 import { AuthenticatedUser } from '@/user/user.types'
+import { Workspace } from '@prisma/client'
 
 @Injectable()
 export class AuthzService {
@@ -32,7 +32,7 @@ export class AuthzService {
 
     this.checkUserHasAccessToWorkspace(
       params.user,
-      workspace.blacklistedIpAddresses
+      workspace
     )
 
     return workspace
@@ -55,7 +55,7 @@ export class AuthzService {
 
     this.checkUserHasAccessToWorkspace(
       params.user,
-      result.workspace.blacklistedIpAddresses
+      result.workspace
     )
 
     return result.project
@@ -78,7 +78,7 @@ export class AuthzService {
 
     this.checkUserHasAccessToWorkspace(
       params.user,
-      result.workspace.blacklistedIpAddresses
+      result.workspace
     )
 
     return result.environment
@@ -101,7 +101,7 @@ export class AuthzService {
 
     this.checkUserHasAccessToWorkspace(
       params.user,
-      result.workspace.blacklistedIpAddresses
+      result.workspace
     )
 
     return result.variable
@@ -124,7 +124,7 @@ export class AuthzService {
 
     this.checkUserHasAccessToWorkspace(
       params.user,
-      result.workspace.blacklistedIpAddresses
+      result.workspace
     )
 
     return result.secret
@@ -147,7 +147,7 @@ export class AuthzService {
 
     this.checkUserHasAccessToWorkspace(
       params.user,
-      result.workspace.blacklistedIpAddresses
+      result.workspace
     )
 
     return result.integration
@@ -155,11 +155,11 @@ export class AuthzService {
 
   private checkUserHasAccessToWorkspace(
     user: AuthenticatedUser,
-    blacklistedIpAddresses: IpAddress[]
+    workspace: Workspace
   ) {
     if (
-      blacklistedIpAddresses.some(
-        (ipAddress) => ipAddress.value === user.ipAddress
+      workspace.blacklistedIpAddresses.some(
+        (ipAddress) => ipAddress === user.ipAddress
       )
     ) {
       throw new ForbiddenException(

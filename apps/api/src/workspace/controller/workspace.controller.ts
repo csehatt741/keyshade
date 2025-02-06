@@ -15,6 +15,7 @@ import { CreateWorkspace } from '../dto/create.workspace/create.workspace'
 import { UpdateWorkspace } from '../dto/update.workspace/update.workspace'
 import { RequiredApiKeyAuthorities } from '@/decorators/required-api-key-authorities.decorator'
 import { AuthenticatedUser } from '@/user/user.types'
+import { UpdateBlacklistedIpAddresses } from '../dto/update.blacklistedIpAddresses/update.blacklistedIpAddresses'
 
 @Controller('workspace')
 export class WorkspaceController {
@@ -120,5 +121,24 @@ export class WorkspaceController {
     @Param('searchTerm') searchTerm: string
   ) {
     return this.workspaceService.globalSearch(user, workspaceSlug, searchTerm)
+  }
+
+  @Get(':workspaceSlug/blacklistedIpAddresses')
+  @RequiredApiKeyAuthorities(Authority.WORKSPACE_ADMIN)
+  async getBlacklistedIpAddresses(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('workspaceSlug') workspaceSlug: Workspace['slug']
+  ) {
+    return this.workspaceService.getBlacklistedIpAddresses(user, workspaceSlug)
+  }
+
+  @Put(':workspaceSlug/blacklistedIpAddresses')
+  @RequiredApiKeyAuthorities(Authority.WORKSPACE_ADMIN)
+  async updateBlacklistedIpAddresses(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('workspaceSlug') workspaceSlug: Workspace['slug'],
+    @Body() dto: UpdateBlacklistedIpAddresses
+  ) {
+    return this.workspaceService.updateBlacklistedIpAddresses(user, workspaceSlug, dto)
   }
 }

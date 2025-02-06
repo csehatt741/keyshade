@@ -11,7 +11,6 @@ import {
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common'
-import { WorkspaceWithBlacklistedIpAddresses } from '@/workspace/workspace.types'
 import { EnvironmentWithProject } from '@/environment/environment.types'
 import { ProjectWithSecrets } from '@/project/project.types'
 import { SecretWithProjectAndVersion } from '@/secret/secret.types'
@@ -43,10 +42,10 @@ export class AuthorityCheckerService {
    */
   public async checkAuthorityOverWorkspace(
     params: AuthorizationParams
-  ): Promise<WorkspaceWithBlacklistedIpAddresses> {
+  ): Promise<Workspace> {
     const { user, entity, authorities } = params
 
-    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(
+    const workspace = await this.getWorkspace(
       user.id,
       { workspaceSlug: entity.slug, workspaceName: entity.name }
     )
@@ -77,7 +76,7 @@ export class AuthorityCheckerService {
    */
   public async checkAuthorityOverProject(params: AuthorizationParams): Promise<{
     project: ProjectWithSecrets
-    workspace: WorkspaceWithBlacklistedIpAddresses
+    workspace: Workspace
   }> {
     const { user, entity, authorities } = params
 
@@ -156,7 +155,7 @@ export class AuthorityCheckerService {
         break
     }
 
-    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(
+    const workspace = await this.getWorkspace(
       user.id,
       { workspaceId: project.workspaceId }
     )
@@ -177,7 +176,7 @@ export class AuthorityCheckerService {
     params: AuthorizationParams
   ): Promise<{
     environment: EnvironmentWithProject
-    workspace: WorkspaceWithBlacklistedIpAddresses
+    workspace: Workspace
   }> {
     const { user, entity, authorities } = params
 
@@ -225,7 +224,7 @@ export class AuthorityCheckerService {
       user.id
     )
 
-    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(
+    const workspace = await this.getWorkspace(
       user.id,
       { workspaceId: environment.project.workspaceId }
     )
@@ -246,7 +245,7 @@ export class AuthorityCheckerService {
     params: AuthorizationParams
   ): Promise<{
     variable: VariableWithProjectAndVersion
-    workspace: WorkspaceWithBlacklistedIpAddresses
+    workspace: Workspace
   }> {
     const { user, entity, authorities } = params
 
@@ -296,7 +295,7 @@ export class AuthorityCheckerService {
       user.id
     )
 
-    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(
+    const workspace = await this.getWorkspace(
       user.id,
       { workspaceId: variable.project.workspaceId }
     )
@@ -315,7 +314,7 @@ export class AuthorityCheckerService {
    */
   public async checkAuthorityOverSecret(params: AuthorizationParams): Promise<{
     secret: SecretWithProjectAndVersion
-    workspace: WorkspaceWithBlacklistedIpAddresses
+    workspace: Workspace
   }> {
     const { user, entity, authorities } = params
 
@@ -365,7 +364,7 @@ export class AuthorityCheckerService {
       user.id
     )
 
-    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(
+    const workspace = await this.getWorkspace(
       user.id,
       { workspaceId: secret.project.workspaceId }
     )
@@ -386,7 +385,7 @@ export class AuthorityCheckerService {
     params: AuthorizationParams
   ): Promise<{
     integration: IntegrationWithWorkspace
-    workspace: WorkspaceWithBlacklistedIpAddresses
+    workspace: Workspace
   }> {
     const { user, entity, authorities } = params
 
@@ -460,7 +459,7 @@ export class AuthorityCheckerService {
       )
     }
 
-    const workspace = await this.getWorkspaceWithBlacklistedIpAddresses(
+    const workspace = await this.getWorkspace(
       user.id,
       { workspaceId: integration.workspaceId }
     )
@@ -476,33 +475,27 @@ export class AuthorityCheckerService {
    * @throws InternalServerErrorException if there's an error when communicating with the database
    * @throws NotFoundException if the workspace is not found
    */
-  private async getWorkspaceWithBlacklistedIpAddresses(
+  private async getWorkspace(
     userId: User['id'],
     filter: {
       workspaceId?: Workspace['id']
       workspaceSlug?: Workspace['slug']
       workspaceName?: Workspace['name']
     }
-  ): Promise<WorkspaceWithBlacklistedIpAddresses> {
-    let workspace: WorkspaceWithBlacklistedIpAddresses
+  ): Promise<Workspace> {
+    let workspace: Workspace
 
     try {
       if (filter.workspaceId) {
         workspace = await this.prisma.workspace.findUnique({
           where: {
             id: filter.workspaceId
-          },
-          include: {
-            blacklistedIpAddresses: true
           }
         })
       } else if (filter.workspaceSlug) {
         workspace = await this.prisma.workspace.findUnique({
           where: {
             slug: filter.workspaceSlug
-          },
-          include: {
-            blacklistedIpAddresses: true
           }
         })
       } else if (filter.workspaceName) {
@@ -510,9 +503,6 @@ export class AuthorityCheckerService {
           where: {
             name: filter.workspaceName,
             members: { some: { userId: userId } }
-          },
-          include: {
-            blacklistedIpAddresses: true
           }
         })
       }
