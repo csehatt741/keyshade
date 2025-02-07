@@ -1,7 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { SecretController } from './secret.controller'
-import { MAIL_SERVICE } from '@/mail/services/interface.service'
-import { MockMailService } from '@/mail/services/mock.service'
 import { SecretService } from '../service/secret.service'
 import { PrismaService } from '@/prisma/prisma.service'
 import { mockDeep } from 'jest-mock-extended'
@@ -9,6 +7,7 @@ import { REDIS_CLIENT } from '@/provider/redis.provider'
 import { RedisClientType } from 'redis'
 import { ProviderModule } from '@/provider/provider.module'
 import { AuthorizationService } from '@/auth/service/authorization.service'
+import { AuthorityCheckerService } from '@/auth/service/authority-checker.service'
 import { CommonModule } from '@/common/common.module'
 
 describe('SecretController', () => {
@@ -20,12 +19,9 @@ describe('SecretController', () => {
       controllers: [SecretController],
       providers: [
         PrismaService,
-        {
-          provide: MAIL_SERVICE,
-          useClass: MockMailService
-        },
         SecretService,
-        AuthorizationService
+        AuthorizationService,
+        AuthorityCheckerService
       ]
     })
       .overrideProvider(REDIS_CLIENT)

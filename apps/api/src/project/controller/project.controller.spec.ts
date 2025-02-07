@@ -7,6 +7,7 @@ import { PrismaService } from '@/prisma/prisma.service'
 import { mockDeep } from 'jest-mock-extended'
 import { AuthorizationService } from '@/auth/service/authorization.service'
 import { CommonModule } from '@/common/common.module'
+import { AuthorityCheckerService } from '@/auth/service/authority-checker.service'
 
 describe('ProjectController', () => {
   let controller: ProjectController
@@ -19,7 +20,8 @@ describe('ProjectController', () => {
         ProjectService,
         PrismaService,
         { provide: MAIL_SERVICE, useClass: MockMailService },
-        AuthorizationService
+        AuthorizationService,
+        AuthorityCheckerService
       ]
     })
       .overrideProvider(PrismaService)
