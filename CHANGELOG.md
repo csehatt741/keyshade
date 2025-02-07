@@ -1,3 +1,21 @@
+## [2.11.0-stage.16](https://github.com/keyshade-xyz/keyshade/compare/v2.11.0-stage.15...v2.11.0-stage.16) (2025-02-06)
+
+### 🚀 Features
+
+* **platform:** Add Google OAuth ([#689](https://github.com/keyshade-xyz/keyshade/issues/689)) ([ad3a3d2](https://github.com/keyshade-xyz/keyshade/commit/ad3a3d2d94a77fcd5c0d1b3b48564a298d510f4a))
+
+## [2.11.0-stage.15](https://github.com/keyshade-xyz/keyshade/compare/v2.11.0-stage.14...v2.11.0-stage.15) (2025-02-06)
+
+### 🚀 Features
+
+* **project:** Edit project feature ([#685](https://github.com/keyshade-xyz/keyshade/issues/685)) ([a906920](https://github.com/keyshade-xyz/keyshade/commit/a9069200d02cb7555ce5265b462d3cffe3a65f0a))
+
+## [2.11.0-stage.14](https://github.com/keyshade-xyz/keyshade/compare/v2.11.0-stage.13...v2.11.0-stage.14) (2025-02-06)
+
+### 🐛 Bug Fixes
+
+* **platform:** ContextMenu not working on variable card ([#688](https://github.com/keyshade-xyz/keyshade/issues/688)) ([fbb147a](https://github.com/keyshade-xyz/keyshade/commit/fbb147a9be27d0510112789fd0e7eaaa4db96083))
+
 ## [2.11.0-stage.13](https://github.com/keyshade-xyz/keyshade/compare/v2.11.0-stage.12...v2.11.0-stage.13) (2025-02-05)
 
 ### 🚀 Features
