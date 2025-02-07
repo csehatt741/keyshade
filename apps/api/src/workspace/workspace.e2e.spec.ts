@@ -694,7 +694,7 @@ describe('Workspace Controller Tests', () => {
         }
       })
 
-      expect(response.statusCode).toBe(HttpStatus.FORBIDDEN)
+      expect(response.statusCode).toBe(HttpStatus.UNAUTHORIZED)
     })
 
     it('should be able to update blacklisted IP addresses by workspace administrator', async () => {

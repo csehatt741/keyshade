@@ -71,7 +71,7 @@ export class SecretService {
     // Fetch the project
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: projectSlug },
         authorities: [Authority.CREATE_SECRET]
       })
@@ -193,7 +193,7 @@ export class SecretService {
     dto: UpdateSecret
   ) {
     const secret = await this.authorizationService.authorizeUserAccessToSecret({
-      user: user,
+      user,
       entity: { slug: secretSlug },
       authorities: [Authority.UPDATE_SECRET]
     })
@@ -360,7 +360,7 @@ export class SecretService {
   ) {
     // Fetch the secret
     const secret = await this.authorizationService.authorizeUserAccessToSecret({
-      user: user,
+      user,
       entity: { slug: secretSlug },
       authorities: [Authority.UPDATE_SECRET]
     })
@@ -368,7 +368,7 @@ export class SecretService {
     // Fetch the environment
     const environment =
       await this.authorizationService.authorizeUserAccessToEnvironment({
-        user: user,
+        user,
         entity: { slug: environmentSlug },
         authorities: [Authority.UPDATE_SECRET]
       })
@@ -455,7 +455,7 @@ export class SecretService {
   async deleteSecret(user: AuthenticatedUser, secretSlug: Secret['slug']) {
     // Check if the user has the required role
     const secret = await this.authorizationService.authorizeUserAccessToSecret({
-      user: user,
+      user,
       entity: { slug: secretSlug },
       authorities: [Authority.DELETE_SECRET]
     })
@@ -507,7 +507,7 @@ export class SecretService {
   ) {
     // Fetch the secret
     const secret = await this.authorizationService.authorizeUserAccessToSecret({
-      user: user,
+      user,
       entity: { slug: secretSlug },
       authorities: [Authority.READ_SECRET]
     })
@@ -516,7 +516,7 @@ export class SecretService {
     // Fetch the environment
     const environment =
       await this.authorizationService.authorizeUserAccessToEnvironment({
-        user: user,
+        user,
         entity: { slug: environmentSlug },
         authorities: [Authority.READ_ENVIRONMENT]
       })
@@ -595,7 +595,7 @@ export class SecretService {
     // Fetch the project
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: projectSlug },
         authorities: [Authority.READ_SECRET]
       })

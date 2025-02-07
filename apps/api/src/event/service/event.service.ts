@@ -38,7 +38,7 @@ export class EventService {
     // Check for workspace authority
     const workspace =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.READ_EVENT]
       })

@@ -55,7 +55,7 @@ export class ProjectService {
     // Check if the workspace exists or not
     const workspace =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.CREATE_PROJECT]
       })
@@ -232,7 +232,7 @@ export class ProjectService {
 
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: projectSlug },
         authorities: [authority]
       })
@@ -380,7 +380,7 @@ export class ProjectService {
   ) {
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: projectSlug },
         authorities: [Authority.READ_PROJECT]
       })
@@ -390,7 +390,7 @@ export class ProjectService {
     if (forkMetadata.workspaceSlug) {
       const workspace =
         await this.authorizationService.authorizeUserAccessToWorkspace({
-          user: user,
+          user,
           entity: { slug: forkMetadata.workspaceSlug },
           authorities: [Authority.CREATE_PROJECT]
         })
@@ -523,7 +523,7 @@ export class ProjectService {
   ) {
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: projectSlug },
         authorities: [Authority.UPDATE_PROJECT]
       })
@@ -560,7 +560,7 @@ export class ProjectService {
   ) {
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: projectSlug },
         authorities: [Authority.UPDATE_PROJECT]
       })
@@ -580,7 +580,7 @@ export class ProjectService {
 
     const parentProject =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: forkedFromProject.slug },
         authorities: [Authority.READ_PROJECT]
       })
@@ -611,7 +611,7 @@ export class ProjectService {
   async deleteProject(user: AuthenticatedUser, projectSlug: Project['slug']) {
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: projectSlug },
         authorities: [Authority.DELETE_PROJECT]
       })
@@ -680,7 +680,7 @@ export class ProjectService {
   ) {
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: projectSlug },
         authorities: [Authority.READ_PROJECT]
       })
@@ -695,7 +695,7 @@ export class ProjectService {
     const forksAllowed = forks.filter(async (fork) => {
       const allowed =
         (await this.authorizationService.authorizeUserAccessToProject({
-          user: user,
+          user,
           entity: { slug: fork.slug },
           authorities: [Authority.READ_PROJECT]
         })) != null
@@ -730,7 +730,7 @@ export class ProjectService {
   async getProject(user: AuthenticatedUser, projectSlug: Project['slug']) {
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: projectSlug },
         authorities: [Authority.READ_PROJECT]
       })
@@ -768,7 +768,7 @@ export class ProjectService {
   ) {
     const workspace =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.READ_PROJECT]
       })
@@ -1248,7 +1248,7 @@ export class ProjectService {
     const envPromises = allEnvs.map(async (env) => {
       const hasRequiredPermission =
         await this.authorizationService.authorizeUserAccessToEnvironment({
-          user: user,
+          user,
           entity: { slug: env.slug },
           authorities:
             project.accessLevel == ProjectAccessLevel.GLOBAL

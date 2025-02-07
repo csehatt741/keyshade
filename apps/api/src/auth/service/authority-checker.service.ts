@@ -9,12 +9,12 @@ import {
 import { EnvironmentWithProject } from '@/environment/environment.types'
 import { ProjectWithSecrets } from '@/project/project.types'
 import { SecretWithProjectAndVersion } from '@/secret/secret.types'
-import { CustomLoggerService } from '../../common/logger.service'
+import { CustomLoggerService } from '@/common/logger.service'
 import {
   getCollectiveEnvironmentAuthorities,
   getCollectiveProjectAuthorities,
   getCollectiveWorkspaceAuthorities
-} from '../../common/collective-authorities'
+} from '@/common/collective-authorities'
 import { IntegrationWithWorkspace } from '@/integration/integration.types'
 import { AuthorizationParams } from './authorization.types'
 import { PrismaService } from '@/prisma/prisma.service'

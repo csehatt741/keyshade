@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common'
+import { UnauthorizedException, Injectable } from '@nestjs/common'
 import { AuthorityCheckerService } from './authority-checker.service'
 import { ProjectWithSecrets } from '@/project/project.types'
 import { EnvironmentWithProject } from '@/environment/environment.types'
@@ -144,7 +144,7 @@ export class AuthorizationService {
         (ipAddress) => ipAddress === user.ipAddress
       )
     ) {
-      throw new ForbiddenException(
+      throw new UnauthorizedException(
         `User ${user.id} is not allowed to access this workspace`
       )
     }

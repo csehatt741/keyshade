@@ -74,7 +74,7 @@ export class WorkspaceService {
     // Fetch the workspace
     const workspace =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.UPDATE_WORKSPACE]
       })
@@ -137,7 +137,7 @@ export class WorkspaceService {
   ): Promise<void> {
     const workspace =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.DELETE_WORKSPACE]
       })
@@ -172,7 +172,7 @@ export class WorkspaceService {
   ): Promise<Workspace> {
     const workspace =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.READ_USERS]
       })
@@ -269,7 +269,7 @@ export class WorkspaceService {
   async exportData(user: AuthenticatedUser, workspaceSlug: Workspace['slug']) {
     const workspace =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.WORKSPACE_ADMIN]
       })
@@ -365,7 +365,7 @@ export class WorkspaceService {
     // Check authority over workspace
     const workspace =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [
           Authority.READ_WORKSPACE,
@@ -514,7 +514,7 @@ export class WorkspaceService {
   ): Promise<string[]> {
     const workspace =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.WORKSPACE_ADMIN]
       })
@@ -538,7 +538,7 @@ export class WorkspaceService {
     // Fetch the workspace
     const workspace =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.WORKSPACE_ADMIN]
       })

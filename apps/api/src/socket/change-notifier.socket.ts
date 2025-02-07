@@ -118,7 +118,7 @@ export default class ChangeNotifier
     try {
       // Check if the user has access to the workspace
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: data.workspaceSlug },
         authorities: [
           Authority.READ_WORKSPACE,
@@ -129,7 +129,7 @@ export default class ChangeNotifier
 
       // Check if the user has access to the project
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: data.projectSlug },
         authorities: [Authority.READ_PROJECT]
       })
@@ -137,7 +137,7 @@ export default class ChangeNotifier
       // Check if the user has access to the environment
       const environment =
         await this.authorizationService.authorizeUserAccessToEnvironment({
-          user: user,
+          user,
           entity: { slug: data.environmentSlug },
           authorities: [Authority.READ_ENVIRONMENT]
         })

@@ -61,7 +61,7 @@ export class WorkspaceRoleService {
 
     const workspace =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.CREATE_WORKSPACE_ROLE]
       })
@@ -143,7 +143,7 @@ export class WorkspaceRoleService {
               try {
                 await this.authorizationService.authorizeUserAccessToEnvironment(
                   {
-                    user: user,
+                    user,
                     entity: {
                       slug: environmentSlug
                     },
@@ -326,7 +326,7 @@ export class WorkspaceRoleService {
               try {
                 await this.authorizationService.authorizeUserAccessToEnvironment(
                   {
-                    user: user,
+                    user,
                     entity: {
                       slug: environmentSlug
                     },
@@ -490,7 +490,7 @@ export class WorkspaceRoleService {
   ) {
     const workspace =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.READ_WORKSPACE_ROLE]
       })
@@ -547,7 +547,7 @@ export class WorkspaceRoleService {
   ): Promise<{ items: WorkspaceRole[]; metadata: PaginatedMetadata }> {
     const { id: workspaceId } =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.READ_WORKSPACE_ROLE]
       })

@@ -63,7 +63,7 @@ export class EnvironmentService {
     // Check if the user has the required role to create an environment
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: projectSlug },
         authorities: [
           Authority.CREATE_ENVIRONMENT,
@@ -162,7 +162,7 @@ export class EnvironmentService {
   ) {
     const environment =
       await this.authorizationService.authorizeUserAccessToEnvironment({
-        user: user,
+        user,
         entity: { slug: environmentSlug },
         authorities: [
           Authority.UPDATE_ENVIRONMENT,
@@ -234,7 +234,7 @@ export class EnvironmentService {
   ) {
     const environment =
       await this.authorizationService.authorizeUserAccessToEnvironment({
-        user: user,
+        user,
         entity: { slug: environmentSlug },
         authorities: [Authority.READ_ENVIRONMENT]
       })
@@ -285,7 +285,7 @@ export class EnvironmentService {
   ) {
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: projectSlug },
         authorities: [Authority.READ_ENVIRONMENT]
       })
@@ -373,7 +373,7 @@ export class EnvironmentService {
   ) {
     const environment =
       await this.authorizationService.authorizeUserAccessToEnvironment({
-        user: user,
+        user,
         entity: { slug: environmentSlug },
         authorities: [Authority.DELETE_ENVIRONMENT]
       })

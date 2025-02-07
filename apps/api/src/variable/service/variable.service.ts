@@ -65,7 +65,7 @@ export class VariableService {
     // Fetch the project
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: projectSlug },
         authorities: [Authority.CREATE_VARIABLE]
       })
@@ -175,7 +175,7 @@ export class VariableService {
   ) {
     const variable =
       await this.authorizationService.authorizeUserAccessToVariable({
-        user: user,
+        user,
         entity: { slug: variableSlug },
         authorities: [Authority.UPDATE_VARIABLE]
       })
@@ -339,7 +339,7 @@ export class VariableService {
   ) {
     const environment =
       await this.authorizationService.authorizeUserAccessToEnvironment({
-        user: user,
+        user,
         entity: { slug: environmentSlug },
         authorities: [Authority.UPDATE_VARIABLE]
       })
@@ -347,7 +347,7 @@ export class VariableService {
 
     const variable =
       await this.authorizationService.authorizeUserAccessToVariable({
-        user: user,
+        user,
         entity: { slug: variableSlug },
         authorities: [Authority.UPDATE_VARIABLE]
       })
@@ -436,7 +436,7 @@ export class VariableService {
   ) {
     const variable =
       await this.authorizationService.authorizeUserAccessToVariable({
-        user: user,
+        user,
         entity: { slug: variableSlug },
         authorities: [Authority.DELETE_VARIABLE]
       })
@@ -486,7 +486,7 @@ export class VariableService {
     // Check if the user has the required authorities in the project
     const { id: projectId } =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: projectSlug },
         authorities: [Authority.READ_VARIABLE]
       })
@@ -494,7 +494,7 @@ export class VariableService {
     // Check if the user has the required authorities in the environment
     const { id: environmentId } =
       await this.authorizationService.authorizeUserAccessToEnvironment({
-        user: user,
+        user,
         entity: { slug: environmentSlug },
         authorities: [Authority.READ_ENVIRONMENT]
       })
@@ -571,7 +571,7 @@ export class VariableService {
     // Check if the user has the required authorities in the project
     const { id: projectId } =
       await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: projectSlug },
         authorities: [Authority.READ_VARIABLE]
       })
@@ -722,14 +722,14 @@ export class VariableService {
   ) {
     const { id: variableId } =
       await this.authorizationService.authorizeUserAccessToVariable({
-        user: user,
+        user,
         entity: { slug: variableSlug },
         authorities: [Authority.READ_VARIABLE]
       })
 
     const { id: environmentId } =
       await this.authorizationService.authorizeUserAccessToEnvironment({
-        user: user,
+        user,
         entity: { slug: environmentSlug },
         authorities: [Authority.READ_ENVIRONMENT]
       })

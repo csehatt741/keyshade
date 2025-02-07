@@ -65,7 +65,7 @@ export class IntegrationService {
     // Check if the user is permitted to create integrations in the workspace
     const workspace =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.CREATE_INTEGRATION, Authority.READ_WORKSPACE]
       })
@@ -80,7 +80,7 @@ export class IntegrationService {
     // Check if the user has READ authority over the project
     if (dto.projectSlug) {
       project = await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: dto.projectSlug },
         authorities: [Authority.READ_PROJECT]
       })
@@ -97,7 +97,7 @@ export class IntegrationService {
     if (dto.environmentSlug) {
       environment =
         await this.authorizationService.authorizeUserAccessToEnvironment({
-          user: user,
+          user,
           entity: { slug: dto.environmentSlug },
           authorities: [Authority.READ_ENVIRONMENT]
         })
@@ -177,7 +177,7 @@ export class IntegrationService {
   ) {
     const integration =
       await this.authorizationService.authorizeUserAccessToIntegration({
-        user: user,
+        user,
         entity: { slug: integrationSlug },
         authorities: [Authority.UPDATE_INTEGRATION]
       })
@@ -194,7 +194,7 @@ export class IntegrationService {
     // If the project is being changed, check if the user has READ authority over the new project
     if (dto.projectSlug) {
       project = await this.authorizationService.authorizeUserAccessToProject({
-        user: user,
+        user,
         entity: { slug: dto.projectSlug },
         authorities: [Authority.READ_PROJECT]
       })
@@ -211,7 +211,7 @@ export class IntegrationService {
     if (dto.environmentSlug) {
       environment =
         await this.authorizationService.authorizeUserAccessToEnvironment({
-          user: user,
+          user,
           entity: { slug: dto.environmentSlug },
           authorities: [Authority.READ_ENVIRONMENT]
         })
@@ -278,7 +278,7 @@ export class IntegrationService {
     integrationSlug: Integration['slug']
   ) {
     return await this.authorizationService.authorizeUserAccessToIntegration({
-      user: user,
+      user,
       entity: { slug: integrationSlug },
       authorities: [Authority.READ_INTEGRATION]
     })
@@ -314,7 +314,7 @@ export class IntegrationService {
     // Check if the user has READ authority over the workspace
     const workspace =
       await this.authorizationService.authorizeUserAccessToWorkspace({
-        user: user,
+        user,
         entity: { slug: workspaceSlug },
         authorities: [Authority.READ_INTEGRATION]
       })
@@ -426,7 +426,7 @@ export class IntegrationService {
   ) {
     const integration =
       await this.authorizationService.authorizeUserAccessToIntegration({
-        user: user,
+        user,
         entity: { slug: integrationSlug },
         authorities: [Authority.DELETE_INTEGRATION]
       })
