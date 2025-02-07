@@ -12,7 +12,12 @@ describe('IntegrationService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [CommonModule],
-      providers: [PrismaService, AuthorizationService, AuthorityCheckerService, IntegrationService]
+      providers: [
+        PrismaService,
+        AuthorizationService,
+        AuthorityCheckerService,
+        IntegrationService
+      ]
     })
       .overrideProvider(PrismaService)
       .useValue(mockDeep<PrismaService>())

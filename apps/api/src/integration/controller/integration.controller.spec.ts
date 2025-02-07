@@ -14,7 +14,12 @@ describe('IntegrationController', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [CommonModule],
       controllers: [IntegrationController],
-      providers: [PrismaService, AuthorizationService, AuthorityCheckerService, IntegrationService]
+      providers: [
+        PrismaService,
+        AuthorizationService,
+        AuthorityCheckerService,
+        IntegrationService
+      ]
     })
       .overrideProvider(PrismaService)
       .useValue(mockDeep<PrismaService>())

@@ -14,7 +14,12 @@ describe('EnvironmentController', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [CommonModule],
       controllers: [EnvironmentController],
-      providers: [EnvironmentService, PrismaService, AuthorizationService, AuthorityCheckerService]
+      providers: [
+        EnvironmentService,
+        PrismaService,
+        AuthorizationService,
+        AuthorityCheckerService
+      ]
     })
       .overrideProvider(PrismaService)
       .useValue(mockDeep<PrismaService>())

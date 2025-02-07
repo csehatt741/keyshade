@@ -11,7 +11,12 @@ describe('EventService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [CommonModule],
-      providers: [EventService, PrismaService, AuthorizationService, AuthorityCheckerService]
+      providers: [
+        EventService,
+        PrismaService,
+        AuthorizationService,
+        AuthorityCheckerService
+      ]
     }).compile()
 
     service = module.get<EventService>(EventService)

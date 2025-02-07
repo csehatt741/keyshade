@@ -13,7 +13,12 @@ describe('EventController', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [CommonModule],
       controllers: [EventController],
-      providers: [EventService, PrismaService, AuthorizationService, AuthorityCheckerService]
+      providers: [
+        EventService,
+        PrismaService,
+        AuthorizationService,
+        AuthorityCheckerService
+      ]
     }).compile()
 
     controller = module.get<EventController>(EventController)

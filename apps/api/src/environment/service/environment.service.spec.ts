@@ -12,7 +12,12 @@ describe('EnvironmentService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [CommonModule],
-      providers: [EnvironmentService, PrismaService, AuthorizationService, AuthorityCheckerService]
+      providers: [
+        EnvironmentService,
+        PrismaService,
+        AuthorizationService,
+        AuthorityCheckerService
+      ]
     })
       .overrideProvider(PrismaService)
       .useValue(mockDeep<PrismaService>())
