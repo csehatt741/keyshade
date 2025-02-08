@@ -94,7 +94,7 @@ export class AuthorityCheckerService {
    */
   public async checkAuthorityOverProject(
     params: AuthorizationParams
-  ) : Promise<ProjectWithSecrets> {
+  ): Promise<ProjectWithSecrets> {
     const { user, entity, authorities } = params
 
     let project: ProjectWithSecrets

@@ -10,10 +10,7 @@ import { AuthenticatedUser } from '@/user/user.types'
 import { Workspace, User } from '@prisma/client'
 import { PrismaService } from '@/prisma/prisma.service'
 import { CustomLoggerService } from '@/common/logger.service'
-import {
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common'
+import { InternalServerErrorException, NotFoundException } from '@nestjs/common'
 import { env } from 'process'
 
 @Injectable()
@@ -59,7 +56,10 @@ export class AuthorizationService {
     const project =
       await this.authorityCheckerService.checkAuthorityOverProject(params)
 
-    const workspace = await this.getWorkspace(params.user.id, project.workspaceId)
+    const workspace = await this.getWorkspace(
+      params.user.id,
+      project.workspaceId
+    )
 
     this.checkUserHasAccessToWorkspace(params.user, workspace)
 
@@ -81,7 +81,10 @@ export class AuthorizationService {
     const environment =
       await this.authorityCheckerService.checkAuthorityOverEnvironment(params)
 
-    const workspace = await this.getWorkspace(params.user.id, environment.project.workspaceId)
+    const workspace = await this.getWorkspace(
+      params.user.id,
+      environment.project.workspaceId
+    )
 
     this.checkUserHasAccessToWorkspace(params.user, workspace)
 
@@ -103,7 +106,10 @@ export class AuthorizationService {
     const variable =
       await this.authorityCheckerService.checkAuthorityOverVariable(params)
 
-    const workspace = await this.getWorkspace(params.user.id, variable.project.workspaceId)
+    const workspace = await this.getWorkspace(
+      params.user.id,
+      variable.project.workspaceId
+    )
 
     this.checkUserHasAccessToWorkspace(params.user, workspace)
 
@@ -125,7 +131,10 @@ export class AuthorizationService {
     const secret =
       await this.authorityCheckerService.checkAuthorityOverSecret(params)
 
-    const workspace = await this.getWorkspace(params.user.id, secret.project.workspaceId)
+    const workspace = await this.getWorkspace(
+      params.user.id,
+      secret.project.workspaceId
+    )
 
     this.checkUserHasAccessToWorkspace(params.user, workspace)
 
@@ -178,9 +187,7 @@ export class AuthorizationService {
     }
 
     if (!workspace) {
-      throw new NotFoundException(
-        `Workspace ${workspaceId} not found`
-      )
+      throw new NotFoundException(`Workspace ${workspaceId} not found`)
     }
 
     return workspace
