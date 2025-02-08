@@ -1,4 +1,4 @@
-import { User, Workspace, Authority, ProjectAccessLevel } from '@prisma/client'
+import { Workspace, Authority, ProjectAccessLevel } from '@prisma/client'
 import { VariableWithProjectAndVersion } from '@/variable/variable.types'
 import {
   Injectable,
@@ -40,10 +40,33 @@ export class AuthorityCheckerService {
   ): Promise<Workspace> {
     const { user, entity, authorities } = params
 
-    const workspace = await this.getWorkspace(user.id, {
-      workspaceSlug: entity.slug,
-      workspaceName: entity.name
-    })
+    let workspace: Workspace
+
+    try {
+      if (entity.slug) {
+        workspace = await this.prisma.workspace.findUnique({
+          where: {
+            slug: entity.slug
+          }
+        })
+      } else if (entity.name) {
+        workspace = await this.prisma.workspace.findFirst({
+          where: {
+            name: entity.name,
+            members: { some: { userId: user.id } }
+          }
+        })
+      }
+    } catch (error) {
+      this.customLoggerService.error(error)
+      throw new InternalServerErrorException(error)
+    }
+
+    if (!workspace) {
+      throw new NotFoundException(
+        `Workspace ${entity.slug ?? entity.name} not found`
+      )
+    }
 
     const permittedAuthorities = await getCollectiveWorkspaceAuthorities(
       workspace.id,
@@ -69,10 +92,9 @@ export class AuthorityCheckerService {
    * @throws NotFoundException if the project is not found
    * @throws UnauthorizedException if the user does not have the required authorities
    */
-  public async checkAuthorityOverProject(params: AuthorizationParams): Promise<{
-    project: ProjectWithSecrets
-    workspace: Workspace
-  }> {
+  public async checkAuthorityOverProject(
+    params: AuthorizationParams
+  ) : Promise<ProjectWithSecrets> {
     const { user, entity, authorities } = params
 
     let project: ProjectWithSecrets
@@ -150,11 +172,7 @@ export class AuthorityCheckerService {
         break
     }
 
-    const workspace = await this.getWorkspace(user.id, {
-      workspaceId: project.workspaceId
-    })
-
-    return { project, workspace }
+    return project
   }
 
   /**
@@ -168,10 +186,7 @@ export class AuthorityCheckerService {
    */
   public async checkAuthorityOverEnvironment(
     params: AuthorizationParams
-  ): Promise<{
-    environment: EnvironmentWithProject
-    workspace: Workspace
-  }> {
+  ): Promise<EnvironmentWithProject> {
     const { user, entity, authorities } = params
 
     let environment: EnvironmentWithProject
@@ -218,11 +233,7 @@ export class AuthorityCheckerService {
       user.id
     )
 
-    const workspace = await this.getWorkspace(user.id, {
-      workspaceId: environment.project.workspaceId
-    })
-
-    return { environment, workspace }
+    return environment
   }
 
   /**
@@ -236,10 +247,7 @@ export class AuthorityCheckerService {
    */
   public async checkAuthorityOverVariable(
     params: AuthorizationParams
-  ): Promise<{
-    variable: VariableWithProjectAndVersion
-    workspace: Workspace
-  }> {
+  ): Promise<VariableWithProjectAndVersion> {
     const { user, entity, authorities } = params
 
     let variable: VariableWithProjectAndVersion
@@ -288,11 +296,7 @@ export class AuthorityCheckerService {
       user.id
     )
 
-    const workspace = await this.getWorkspace(user.id, {
-      workspaceId: variable.project.workspaceId
-    })
-
-    return { variable, workspace }
+    return variable
   }
 
   /**
@@ -304,10 +308,9 @@ export class AuthorityCheckerService {
    * @throws NotFoundException if the secret is not found
    * @throws UnauthorizedException if the user does not have the required authorities
    */
-  public async checkAuthorityOverSecret(params: AuthorizationParams): Promise<{
-    secret: SecretWithProjectAndVersion
-    workspace: Workspace
-  }> {
+  public async checkAuthorityOverSecret(
+    params: AuthorizationParams
+  ): Promise<SecretWithProjectAndVersion> {
     const { user, entity, authorities } = params
 
     let secret: SecretWithProjectAndVersion
@@ -356,11 +359,7 @@ export class AuthorityCheckerService {
       user.id
     )
 
-    const workspace = await this.getWorkspace(user.id, {
-      workspaceId: secret.project.workspaceId
-    })
-
-    return { secret, workspace }
+    return secret
   }
 
   /**
@@ -374,10 +373,7 @@ export class AuthorityCheckerService {
    */
   public async checkAuthorityOverIntegration(
     params: AuthorizationParams
-  ): Promise<{
-    integration: IntegrationWithWorkspace
-    workspace: Workspace
-  }> {
+  ): Promise<IntegrationWithWorkspace> {
     const { user, entity, authorities } = params
 
     let integration: IntegrationWithWorkspace | null
@@ -450,64 +446,7 @@ export class AuthorityCheckerService {
       )
     }
 
-    const workspace = await this.getWorkspace(user.id, {
-      workspaceId: integration.workspaceId
-    })
-
-    return { integration, workspace }
-  }
-
-  /**
-   * Fetches the requested workspace specified by userId and the filter.
-   * @param userId The id of the user
-   * @param filter The filter optionally including the workspace id, slug or name
-   * @returns The requested workspace
-   * @throws InternalServerErrorException if there's an error when communicating with the database
-   * @throws NotFoundException if the workspace is not found
-   */
-  private async getWorkspace(
-    userId: User['id'],
-    filter: {
-      workspaceId?: Workspace['id']
-      workspaceSlug?: Workspace['slug']
-      workspaceName?: Workspace['name']
-    }
-  ): Promise<Workspace> {
-    let workspace: Workspace
-
-    try {
-      if (filter.workspaceId) {
-        workspace = await this.prisma.workspace.findUnique({
-          where: {
-            id: filter.workspaceId
-          }
-        })
-      } else if (filter.workspaceSlug) {
-        workspace = await this.prisma.workspace.findUnique({
-          where: {
-            slug: filter.workspaceSlug
-          }
-        })
-      } else if (filter.workspaceName) {
-        workspace = await this.prisma.workspace.findFirst({
-          where: {
-            name: filter.workspaceName,
-            members: { some: { userId: userId } }
-          }
-        })
-      }
-    } catch (error) {
-      this.customLoggerService.error(error)
-      throw new InternalServerErrorException(error)
-    }
-
-    if (!workspace) {
-      throw new NotFoundException(
-        `Workspace ${filter.workspaceId ?? filter.workspaceSlug ?? filter.workspaceName} not found`
-      )
-    }
-
-    return workspace
+    return integration
   }
 
   /**

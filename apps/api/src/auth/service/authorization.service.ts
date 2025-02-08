@@ -7,12 +7,21 @@ import { SecretWithProjectAndVersion } from '@/secret/secret.types'
 import { IntegrationWithWorkspace } from '@/integration/integration.types'
 import { AuthorizationParams } from './authorization.types'
 import { AuthenticatedUser } from '@/user/user.types'
-import { Workspace } from '@prisma/client'
+import { Workspace, User } from '@prisma/client'
+import { PrismaService } from '@/prisma/prisma.service'
+import { CustomLoggerService } from '@/common/logger.service'
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common'
+import { env } from 'process'
 
 @Injectable()
 export class AuthorizationService {
   constructor(
-    private readonly authorityCheckerService: AuthorityCheckerService
+    private readonly prisma: PrismaService,
+    private readonly authorityCheckerService: AuthorityCheckerService,
+    private readonly customLoggerService: CustomLoggerService
   ) {}
 
   /**
@@ -47,12 +56,14 @@ export class AuthorizationService {
   public async authorizeUserAccessToProject(
     params: AuthorizationParams
   ): Promise<ProjectWithSecrets> {
-    const result =
+    const project =
       await this.authorityCheckerService.checkAuthorityOverProject(params)
 
-    this.checkUserHasAccessToWorkspace(params.user, result.workspace)
+    const workspace = await this.getWorkspace(params.user.id, project.workspaceId)
 
-    return result.project
+    this.checkUserHasAccessToWorkspace(params.user, workspace)
+
+    return project
   }
 
   /**
@@ -67,12 +78,14 @@ export class AuthorizationService {
   public async authorizeUserAccessToEnvironment(
     params: AuthorizationParams
   ): Promise<EnvironmentWithProject> {
-    const result =
+    const environment =
       await this.authorityCheckerService.checkAuthorityOverEnvironment(params)
 
-    this.checkUserHasAccessToWorkspace(params.user, result.workspace)
+    const workspace = await this.getWorkspace(params.user.id, environment.project.workspaceId)
 
-    return result.environment
+    this.checkUserHasAccessToWorkspace(params.user, workspace)
+
+    return environment
   }
 
   /**
@@ -87,12 +100,14 @@ export class AuthorizationService {
   public async authorizeUserAccessToVariable(
     params: AuthorizationParams
   ): Promise<VariableWithProjectAndVersion> {
-    const result =
+    const variable =
       await this.authorityCheckerService.checkAuthorityOverVariable(params)
 
-    this.checkUserHasAccessToWorkspace(params.user, result.workspace)
+    const workspace = await this.getWorkspace(params.user.id, variable.project.workspaceId)
 
-    return result.variable
+    this.checkUserHasAccessToWorkspace(params.user, workspace)
+
+    return variable
   }
 
   /**
@@ -107,12 +122,14 @@ export class AuthorizationService {
   public async authorizeUserAccessToSecret(
     params: AuthorizationParams
   ): Promise<SecretWithProjectAndVersion> {
-    const result =
+    const secret =
       await this.authorityCheckerService.checkAuthorityOverSecret(params)
 
-    this.checkUserHasAccessToWorkspace(params.user, result.workspace)
+    const workspace = await this.getWorkspace(params.user.id, secret.project.workspaceId)
 
-    return result.secret
+    this.checkUserHasAccessToWorkspace(params.user, workspace)
+
+    return secret
   }
 
   /**
@@ -127,12 +144,46 @@ export class AuthorizationService {
   public async authorizeUserAccessToIntegration(
     params: AuthorizationParams
   ): Promise<IntegrationWithWorkspace> {
-    const result =
+    const integration =
       await this.authorityCheckerService.checkAuthorityOverIntegration(params)
 
-    this.checkUserHasAccessToWorkspace(params.user, result.workspace)
+    this.checkUserHasAccessToWorkspace(params.user, integration.workspace)
 
-    return result.integration
+    return integration
+  }
+
+  /**
+   * Fetches the requested workspace specified by userId and the filter.
+   * @param userId The id of the user
+   * @param filter The filter optionally including the workspace id, slug or name
+   * @returns The requested workspace
+   * @throws InternalServerErrorException if there's an error when communicating with the database
+   * @throws NotFoundException if the workspace is not found
+   */
+  private async getWorkspace(
+    userId: User['id'],
+    workspaceId: Workspace['id']
+  ): Promise<Workspace> {
+    let workspace: Workspace
+
+    try {
+      workspace = await this.prisma.workspace.findUnique({
+        where: {
+          id: workspaceId
+        }
+      })
+    } catch (error) {
+      this.customLoggerService.error(error)
+      throw new InternalServerErrorException(error)
+    }
+
+    if (!workspace) {
+      throw new NotFoundException(
+        `Workspace ${workspaceId} not found`
+      )
+    }
+
+    return workspace
   }
 
   private checkUserHasAccessToWorkspace(
