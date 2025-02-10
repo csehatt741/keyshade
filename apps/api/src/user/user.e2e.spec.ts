@@ -48,7 +48,7 @@ describe('User Controller Tests', () => {
     })
 
     regularUser = await userService.createUser({
-      email: 'john@keyshade.xyz',
+      email: 'John@keyshade.xyz',
       name: 'John',
       isActive: true,
       isAdmin: false,
@@ -263,8 +263,8 @@ describe('User Controller Tests', () => {
         'x-e2e-user-email': adminUser.email
       },
       payload: {
-        email: adminUser.email,
-        name: 'Admin',
+        email: regularUser.email.toUpperCase(),
+        name: regularUser.name,
         isAdmin: false,
         isActive: true,
         isOnboardingFinished: true
@@ -379,7 +379,7 @@ describe('User Controller Tests', () => {
         userId: regularUser.id,
         AND: {
           emailChange: {
-            newEmail: 'newEmail@keyshade.xyz'
+            newEmail: 'newemail@keyshade.xyz'
           }
         }
       }
@@ -403,7 +403,7 @@ describe('User Controller Tests', () => {
     expect(result.statusCode).toEqual(200)
     expect(JSON.parse(result.body)).toEqual({
       ...regularUser,
-      email: 'newEmail@keyshade.xyz'
+      email: 'newemail@keyshade.xyz'
     })
 
     const updatedUser = await prisma.user.findUnique({
@@ -412,7 +412,7 @@ describe('User Controller Tests', () => {
       }
     })
 
-    expect(updatedUser.email).toEqual('newEmail@keyshade.xyz')
+    expect(updatedUser.email).toEqual('newemail@keyshade.xyz')
   })
 
   it('should give error when new email is used by an existing user', async () => {
