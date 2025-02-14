@@ -1,0 +1,60 @@
+name: Release and deploy
+
+on:
+  push:
+    branches:
+      - lint-staged
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ github.ref == 'refs/heads/main' && 'alpha' || 'stage' }}
+      version: ${{ steps.fetch-tag.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          registry-url: https://registry.npmjs.org
+
+      - name: Install PNPM
+        run: npm i -g pnpm
+
+      - name: Install
+        run: pnpm i
+
+      - name: Debug File Access
+        run: |
+          ls -la
+          cat lint-staged.config.js
+
+      - name: Release
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GITHUB_TOKEN }}
+          GITHUB_CLIENT_ID: dummy
+          GITHUB_CLIENT_SECRET: dummy
+          GITHUB_CALLBACK_URL: dummy
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: secret
+        run: pnpm dlx semantic-release
+
+      - name: Fetch latest tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        id: fetch-tag
+        run: |
+          if [ "${{ github.ref_name }}" == "main" ]; then
+            version=`gh release list -L 1 --exclude-pre-releases --json tagName --jq ".[0].tagName" | sed 's/^v//'`
+          else
+            version=`gh release list --json tagName --jq ".[].tagName" | grep "stage" | head -n 1 | sed 's/^v//'`
+          fi
+          echo "Working with version: $version"
+          echo "version=$version" >> $GITHUB_OUTPUT
