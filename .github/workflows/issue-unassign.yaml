@@ -1,4 +1,4 @@
-name: Issue PR Reminder
+name: Issue Unassign
 
 on:
   schedule:
@@ -11,16 +11,16 @@ jobs:
     steps:
       - uses: actions/github-script@v7
         env:
-          CREATE_PR_REMINDER_ENABLED: ${{ vars.CREATE_PR_REMINDER_ENABLED }}
-          CREATE_PR_REMINDER_AFTER_DAYS: ${{ vars.CREATE_PR_REMINDER_AFTER_DAYS }}
+          UNASSIGN_ISSUE_ENABLED: ${{ vars.UNASSIGN_ISSUE_ENABLED }}
+          UNASSIGN_ISSUE_AFTER_DAYS: ${{ vars.UNASSIGN_ISSUE_AFTER_DAYS }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const owner = "keyshade-xyz";
             const repo = "keyshade";
-            const createPrReminderEnabled = process.env.CREATE_PR_REMINDER_ENABLED || false;
-            const createPrReminderAfterDays = process.env.CREATE_PR_REMINDER_AFTER_DAYS || 2;
-            const createPrReminderAfterMilliseconds = createPrReminderAfterDays * 24 * 60 * 60 * 1000;
+            const unassignIssueEnabled = process.env.UNASSIGN_ISSUE_ENABLED || false;
+            const unassignIssueAfterDays = process.env.CREATE_PR_REMINDER_AFTER_DAYS || 14;
+            const unassignIssueAfterMilliseconds = unassignIssueAfterDays * 24 * 60 * 60 * 1000;
             const now = Date.now();
 
             async function listOpenIssues() {
@@ -69,30 +69,7 @@ jobs:
               return allEvents.sort((a, b) => a.id > b.id);
             }
 
-            async function listIssueComments(issue) {
-              const allComments = [];
-              let page = 1;
-              let hasNextPage = true;
-
-              while (hasNextPage) {
-                const issuesResponse = await github.rest.issues.listComments({
-                  owner,
-                  repo,
-                  issue_number: issue.number,
-                  per_page: 100,
-                  page
-                });
-
-                allComments.push(...issuesResponse.data);
-
-                hasNextPage = issuesResponse.headers.link && issuesResponse.headers.link.includes('rel="next"');
-                page++;
-              }
-
-              return allComments;
-            }
-
-            async function createPrReminders() {
+            async function unassignIssues() {
               const issues = await listOpenIssues();
 
               for (const issue of issues) {
@@ -101,7 +78,6 @@ jobs:
                     .filter(event => event.event === 'cross-referenced')
                     .map(event => event.source.issue)
                     .filter(issue => issue && issue.pull_request);
-                const comments = await listIssueComments(issue);
 
                 for (const assignee of issue.assignees) {
                   // Check if assignee has already opened a PR
@@ -111,35 +87,34 @@ jobs:
                     continue;
                   }
 
-                  // Check if it is time to create a reminder
+                  // Check if it is time to unassign issue
                   const assignedEvent = events.find(event => event.event === 'assigned' && event.assignee.login === assignee.login);                  
                   const issueAssignedAt = new Date(assignedEvent.created_at);
-                  const createPrReminderAfter = new Date(issueAssignedAt.getTime() + createPrReminderAfterMilliseconds);
+                  const unassignIssueAfter = new Date(issueAssignedAt.getTime() + unassignIssueAfterMilliseconds);
 
-                  if (now < createPrReminderAfter) {
+                  if (now < unassignIssueAfter) {
                     continue;
                   }
 
-                  // Check if reminder has already been created
-                  const reminder = `@${assignee.login}, please open a draft PR linking this issue!`;
+                  if(unassignIssueEnabled) {
+                    await github.rest.issues.removeAssignees({
+                      owner,
+                      repo,
+                      issue_number: issue.number,
+                      assignees: [assignee.login],
+                    });
 
-                  if (comments.some(comment => comment.body === reminder)) {
-                    continue;
-                  }
-
-                  // Create reminder
-                  if(createPrReminderEnabled) {
                     await github.rest.issues.createComment({
                       owner,
                       repo,
                       issue_number: issue.number,
-                      body: reminder
+                      body: `Unassigned the issue from @${assignee.login}!`,
                     });
                   }
 
-                  console.log(`Issue '${issue.number}' reminder created for: ${assignee.login}`);
+                  console.log(`Issue '${issue.number}' user unassigned: ${assignee.login}`);
                 }
               }
             }
 
-            await createPrReminders();
+            await unassignIssues();
