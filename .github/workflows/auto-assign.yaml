@@ -19,7 +19,10 @@ jobs:
             const repo = 'keyshade';
             const userMaxConcurrentIssueCount = process.env.USER_MAX_CONCURRENT_ISSUE_COUNT || 5;
 
+            console.log('Context:');
             console.dir(context);
+            console.log('Context/Issue:');
+            console.dir(context.issue);
 
             async function listIssueEvents(issueNumber) {
               const events = [];
