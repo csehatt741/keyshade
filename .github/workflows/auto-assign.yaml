@@ -127,6 +127,8 @@ jobs:
                 issue_number: context.issue.number
               });
 
+              console.log(issue);
+
               if (!issue.assignee) {
                 const userActiveIssues = await listUserOpenIssuesWithoutActivePullRequest(comment.user);
 
