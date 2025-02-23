@@ -118,6 +118,7 @@ jobs:
 
             if (comment.body.startsWith('/attempt')) {
               console.log(`Assignee: ${issue.assignee}`);
+              console.log(`Assignees: ${issue.assignees}`);
               if (!issue.assignee) {
                 const userActiveIssues = await listUserOpenIssuesWithoutActivePullRequest(comment.user);
 
