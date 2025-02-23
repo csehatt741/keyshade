@@ -117,6 +117,7 @@ jobs:
             }
 
             if (comment.body.startsWith('/attempt')) {
+              console.log(`Issue: ${issue}`);
               console.log(`Assignee: ${issue.assignee}`);
               console.log(`Assignees: ${issue.assignees}`);
               if (!issue.assignee) {
