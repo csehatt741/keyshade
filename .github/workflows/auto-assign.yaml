@@ -15,6 +15,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const comment = context.payload.comment;
+            const issue = context.payload.issue;
             const owner = 'csehatt741';
             const repo = 'keyshade';
             const userMaxConcurrentIssueCount = process.env.USER_MAX_CONCURRENT_ISSUE_COUNT || 5;
@@ -121,14 +122,6 @@ jobs:
             }
 
             if (comment.body.startsWith('/attempt')) {
-              const issue = await github.rest.issues.get({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number
-              });
-
-              console.log(issue);
-
               if (!issue.assignee) {
                 const userActiveIssues = await listUserOpenIssuesWithoutActivePullRequest(comment.user);
 
