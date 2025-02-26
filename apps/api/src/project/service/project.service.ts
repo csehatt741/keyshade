@@ -394,6 +394,7 @@ export class ProjectService {
     projectSlug: Project['slug'],
     forkMetadata: ForkProject
   ) {
+    console.log(`${Date.now()}: forkProject ${forkMetadata.name} - started`)
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
         user,
@@ -523,6 +524,7 @@ export class ProjectService {
     )
 
     this.log.debug(`Created project ${newProject}`)
+    console.log(`${Date.now()}: forkProject - finished`)
     return newProject
   }
 
@@ -700,7 +702,7 @@ export class ProjectService {
     page: number,
     limit: number
   ) {
-    console.log(`${Date.now()}: getAllProjectForks`)
+    console.log(`${Date.now()}: getAllProjectForks - started`)
 
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
@@ -745,6 +747,8 @@ export class ProjectService {
         limit: limitMaxItemsPerPage(limit)
       }
     )
+
+    console.log(`${Date.now()}: getAllProjectForks - finished`)
 
     return { items, metadata }
   }
