@@ -1883,7 +1883,8 @@ describe('Project Controller Tests', () => {
         expect(response.json().items).toHaveLength(1)
         console.log(`${Date.now()}: Test finished`)
       } catch (error) {
-        console.log(`${Date.now()}: Error: ${error}`)
+        console.error(`${Date.now()}: Error: ${error}`)
+        throw error
       }
     })
   })

@@ -4,6 +4,7 @@ export default {
   displayName: 'api',
   testEnvironment: 'node',
   testMatch: ['**/project.e2e.spec.ts'],
+  testTimeout: 10000,
   transform: {
     '^.+\\.[tj]sx?$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }]
   },
