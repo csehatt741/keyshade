@@ -170,6 +170,15 @@ export class AuthorizationService {
     }
 
     if (!workspace) {
+      console.log(`Workspace not found: ${workspaceId}`)
+
+      const workspaces = await this.prisma.workspace.findMany()
+
+      console.log('Workspaces:')
+      for (const workspace of workspaces) {
+        console.log(`${workspace.name}: ${workspace.id}`)
+      }
+
       throw new NotFoundException(`Workspace ${workspaceId} not found`)
     }
 
