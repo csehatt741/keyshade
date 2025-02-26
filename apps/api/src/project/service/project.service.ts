@@ -708,7 +708,9 @@ export class ProjectService {
       })
     const projectId = project.id
 
-    console.log(`Parent Project WorkspaceId: ${project.workspaceId}`)
+    console.log(
+      `${Date.now()}: Parent Project WorkspaceId: ${project.workspaceId}`
+    )
 
     const forks = await this.prisma.project.findMany({
       where: {
@@ -717,7 +719,9 @@ export class ProjectService {
     })
 
     const forksAllowed = forks.filter(async (fork) => {
-      console.log(`Fork ${fork.name} Project WorkspaceId: ${fork.workspaceId}`)
+      console.log(
+        `${Date.now()}: Fork ${fork.name} Project WorkspaceId: ${fork.workspaceId}`
+      )
       const allowed =
         (await this.authorizationService.authorizeUserAccessToProject({
           user,

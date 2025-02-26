@@ -101,6 +101,7 @@ describe('Project Controller Tests', () => {
   })
 
   beforeEach(async () => {
+    console.log(`${Date.now()}: Set up test data`)
     const createUser1 = await userService.createUser({
       name: 'John Doe',
       email: 'johndoe@keyshade.xyz',
@@ -120,8 +121,8 @@ describe('Project Controller Tests', () => {
     workspace1 = createUser1.defaultWorkspace
     workspace2 = createUser2.defaultWorkspace
 
-    console.log(`Workspace 1: ${workspace1.id}`)
-    console.log(`Workspace 2: ${workspace2.id}`)
+    console.log(`${Date.now()}: Workspace 1: ${workspace1.id}`)
+    console.log(`${Date.now()}: Workspace 2: ${workspace2.id}`)
 
     delete createUser1.defaultWorkspace
     delete createUser2.defaultWorkspace
@@ -154,7 +155,7 @@ describe('Project Controller Tests', () => {
         'Project for testing if all environments,secrets and keys are being fetched or not',
       storePrivateKey: true
     })) as Project
-    console.log('Test data set up')
+    console.log(`${Date.now()}: Test data set up`)
   })
 
   afterEach(async () => {
@@ -162,7 +163,7 @@ describe('Project Controller Tests', () => {
       prisma.user.deleteMany(),
       prisma.workspace.deleteMany()
     ])
-    console.log('Test data cleaned up')
+    console.log(`${Date.now()}: Test data cleaned up`)
   })
 
   it('should be defined', async () => {
@@ -1834,8 +1835,8 @@ describe('Project Controller Tests', () => {
     })
 
     it('should not contain a forked project that has access level other than GLOBAL', async () => {
-      console.log('Test started')
-      console.log(`Parent WorkspaceId: ${project3.workspaceId}`)
+      console.log(`${Date.now()}: Test started`)
+      console.log(`${Date.now()}: Parent WorkspaceId: ${project3.workspaceId}`)
       // Make a hidden fork
       const hiddenProject = await projectService.forkProject(
         user2,
@@ -1848,7 +1849,9 @@ describe('Project Controller Tests', () => {
         accessLevel: ProjectAccessLevel.INTERNAL
       })
 
-      console.log(`Internal fork WorkspaceId: ${hiddenProject.workspaceId}`)
+      console.log(
+        `${Date.now()}: Internal fork WorkspaceId: ${hiddenProject.workspaceId}`
+      )
 
       // Make a public fork
       const publicProject = await projectService.forkProject(
@@ -1859,7 +1862,9 @@ describe('Project Controller Tests', () => {
         }
       )
 
-      console.log(`Public fork WorkspaceId: ${publicProject.workspaceId}`)
+      console.log(
+        `${Date.now()}: Public fork WorkspaceId: ${publicProject.workspaceId}`
+      )
 
       const response = await app.inject({
         method: 'GET',
@@ -1869,9 +1874,11 @@ describe('Project Controller Tests', () => {
         }
       })
 
+      console.log(`${Date.now()}: Get forks response: ${response.json()}`)
+
       expect(response.statusCode).toBe(200)
       expect(response.json().items).toHaveLength(1)
-      console.log('Test finished')
+      console.log(`${Date.now()}: Test finished`)
     })
   })
 })
