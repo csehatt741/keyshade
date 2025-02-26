@@ -1832,7 +1832,7 @@ describe('Project Controller Tests', () => {
 
     it('should not contain a forked project that has access level other than GLOBAL', async () => {
       console.log('Test started')
-      console.log(`WorkspaceId: ${project3.workspaceId}`)
+      console.log(`Parent WorkspaceId: ${project3.workspaceId}`)
       // Make a hidden fork
       const hiddenProject = await projectService.forkProject(
         user2,
@@ -1845,10 +1845,18 @@ describe('Project Controller Tests', () => {
         accessLevel: ProjectAccessLevel.INTERNAL
       })
 
+      console.log(`Internal fork WorkspaceId: ${hiddenProject.workspaceId}`)
+
       // Make a public fork
-      await projectService.forkProject(user2, project3.slug, {
-        name: 'Forked Project'
-      })
+      const publicProject = await projectService.forkProject(
+        user2,
+        project3.slug,
+        {
+          name: 'Forked Project'
+        }
+      )
+
+      console.log(`Public fork WorkspaceId: ${publicProject.workspaceId}`)
 
       const response = await app.inject({
         method: 'GET',
