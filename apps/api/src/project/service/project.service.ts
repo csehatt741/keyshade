@@ -231,6 +231,7 @@ export class ProjectService {
     projectSlug: Project['slug'],
     dto: UpdateProject
   ) {
+    console.log(`${Date.now()}: updateProject ${projectSlug} - started`)
     // Check if the user has the authority to update the project
     let authority: Authority = Authority.UPDATE_PROJECT
 
@@ -371,6 +372,7 @@ export class ProjectService {
     )
 
     this.log.debug(`Updated project ${updatedProject.id}`)
+    console.log(`${Date.now()}: updateProject ${projectSlug} - finished`)
     return {
       ...updatedProject,
       privateKey,
@@ -524,7 +526,7 @@ export class ProjectService {
     )
 
     this.log.debug(`Created project ${newProject}`)
-    console.log(`${Date.now()}: forkProject - finished`)
+    console.log(`${Date.now()}: forkProject ${forkMetadata.name} - finished`)
     return newProject
   }
 
