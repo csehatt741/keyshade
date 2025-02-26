@@ -700,6 +700,8 @@ export class ProjectService {
     page: number,
     limit: number
   ) {
+    console.log(`${Date.now()}: getAllProjectForks`)
+
     const project =
       await this.authorizationService.authorizeUserAccessToProject({
         user,
