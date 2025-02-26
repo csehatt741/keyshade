@@ -1856,18 +1856,18 @@ describe('Project Controller Tests', () => {
           `${Date.now()}: Internal fork WorkspaceId: ${hiddenProject.workspaceId}`
         )
 
-        // Make a public fork
-        const publicProject = await projectService.forkProject(
-          user2,
-          project3.slug,
-          {
-            name: 'Forked Project'
-          }
-        )
+        // // Make a public fork
+        // const publicProject = await projectService.forkProject(
+        //   user2,
+        //   project3.slug,
+        //   {
+        //     name: 'Forked Project'
+        //   }
+        // )
 
-        console.log(
-          `${Date.now()}: Public fork WorkspaceId: ${publicProject.workspaceId}`
-        )
+        // console.log(
+        //   `${Date.now()}: Public fork WorkspaceId: ${publicProject.workspaceId}`
+        // )
 
         // const response = await app.inject({
         //   method: 'GET',
