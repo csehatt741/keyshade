@@ -120,6 +120,9 @@ describe('Project Controller Tests', () => {
     workspace1 = createUser1.defaultWorkspace
     workspace2 = createUser2.defaultWorkspace
 
+    console.log(`Workspace 1: ${workspace1.id}`)
+    console.log(`Workspace 2: ${workspace2.id}`)
+
     delete createUser1.defaultWorkspace
     delete createUser2.defaultWorkspace
 
