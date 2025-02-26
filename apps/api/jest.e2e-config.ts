@@ -3,7 +3,7 @@ export default {
   forceExit: true,
   displayName: 'api',
   testEnvironment: 'node',
-  testMatch: ['**/*.e2e.spec.ts'],
+  testMatch: ['**/project.e2e.spec.ts'],
   transform: {
     '^.+\\.[tj]sx?$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }]
   },

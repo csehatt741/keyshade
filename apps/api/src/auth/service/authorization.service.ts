@@ -7,7 +7,7 @@ import { SecretWithProjectAndVersion } from '@/secret/secret.types'
 import { IntegrationWithWorkspace } from '@/integration/integration.types'
 import { AuthorizationParams } from './authorization.types'
 import { AuthenticatedUser } from '@/user/user.types'
-import { Workspace, User } from '@prisma/client'
+import { Workspace } from '@prisma/client'
 import { PrismaService } from '@/prisma/prisma.service'
 import { CustomLoggerService } from '@/common/logger.service'
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common'
@@ -55,10 +55,7 @@ export class AuthorizationService {
     const project =
       await this.authorityCheckerService.checkAuthorityOverProject(params)
 
-    const workspace = await this.getWorkspace(
-      params.user.id,
-      project.workspaceId
-    )
+    const workspace = await this.getWorkspace(project.workspaceId)
 
     this.checkUserHasAccessToWorkspace(params.user, workspace)
 
@@ -80,10 +77,7 @@ export class AuthorizationService {
     const environment =
       await this.authorityCheckerService.checkAuthorityOverEnvironment(params)
 
-    const workspace = await this.getWorkspace(
-      params.user.id,
-      environment.project.workspaceId
-    )
+    const workspace = await this.getWorkspace(environment.project.workspaceId)
 
     this.checkUserHasAccessToWorkspace(params.user, workspace)
 
@@ -105,10 +99,7 @@ export class AuthorizationService {
     const variable =
       await this.authorityCheckerService.checkAuthorityOverVariable(params)
 
-    const workspace = await this.getWorkspace(
-      params.user.id,
-      variable.project.workspaceId
-    )
+    const workspace = await this.getWorkspace(variable.project.workspaceId)
 
     this.checkUserHasAccessToWorkspace(params.user, workspace)
 
@@ -130,10 +121,7 @@ export class AuthorizationService {
     const secret =
       await this.authorityCheckerService.checkAuthorityOverSecret(params)
 
-    const workspace = await this.getWorkspace(
-      params.user.id,
-      secret.project.workspaceId
-    )
+    const workspace = await this.getWorkspace(secret.project.workspaceId)
 
     this.checkUserHasAccessToWorkspace(params.user, workspace)
 
@@ -162,16 +150,12 @@ export class AuthorizationService {
 
   /**
    * Fetches the requested workspace specified by userId and the filter.
-   * @param userId The id of the user
-   * @param filter The filter optionally including the workspace id, slug or name
+   * @param workspaceId The workspace id
    * @returns The requested workspace
    * @throws InternalServerErrorException if there's an error when communicating with the database
    * @throws NotFoundException if the workspace is not found
    */
-  private async getWorkspace(
-    userId: User['id'],
-    workspaceId: Workspace['id']
-  ): Promise<Workspace> {
+  private async getWorkspace(workspaceId: Workspace['id']): Promise<Workspace> {
     let workspace: Workspace
 
     try {

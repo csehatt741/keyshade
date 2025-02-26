@@ -151,6 +151,7 @@ describe('Project Controller Tests', () => {
         'Project for testing if all environments,secrets and keys are being fetched or not',
       storePrivateKey: true
     })) as Project
+    console.log('Test data set up')
   })
 
   afterEach(async () => {
@@ -158,6 +159,7 @@ describe('Project Controller Tests', () => {
       prisma.user.deleteMany(),
       prisma.workspace.deleteMany()
     ])
+    console.log('Test data cleaned up')
   })
 
   it('should be defined', async () => {
@@ -1829,6 +1831,8 @@ describe('Project Controller Tests', () => {
     })
 
     it('should not contain a forked project that has access level other than GLOBAL', async () => {
+      console.log('Test started')
+      console.log(`WorkspaceId: ${project3.workspaceId}`)
       // Make a hidden fork
       const hiddenProject = await projectService.forkProject(
         user2,
@@ -1856,6 +1860,7 @@ describe('Project Controller Tests', () => {
 
       expect(response.statusCode).toBe(200)
       expect(response.json().items).toHaveLength(1)
+      console.log('Test finished')
     })
   })
 })
