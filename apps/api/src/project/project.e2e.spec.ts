@@ -159,6 +159,7 @@ describe('Project Controller Tests', () => {
   })
 
   afterEach(async () => {
+    console.log(`${Date.now()}: Cleaning up test data`)
     await prisma.$transaction([
       prisma.user.deleteMany(),
       prisma.workspace.deleteMany()
@@ -1134,12 +1135,12 @@ describe('Project Controller Tests', () => {
         user2,
         project3.slug,
         {
-          name: 'Forked Project'
+          name: 'Forked Project 1'
         }
       )) as Project
 
       expect(forkedProject).toBeDefined()
-      expect(forkedProject.name).toBe('Forked Project')
+      expect(forkedProject.name).toBe('Forked Project 1')
       expect(forkedProject.publicKey).toBeDefined()
       expect(forkedProject.privateKey).toBeDefined()
       expect(forkedProject.publicKey).not.toBe(project3.publicKey)
@@ -1155,7 +1156,7 @@ describe('Project Controller Tests', () => {
       })
 
       expect(forkedProjectFromDB).toBeDefined()
-      expect(forkedProjectFromDB.name).toBe('Forked Project')
+      expect(forkedProjectFromDB.name).toBe('Forked Project 1')
       expect(forkedProjectFromDB.publicKey).toBeDefined()
       expect(forkedProjectFromDB.privateKey).toBeDefined()
       expect(forkedProjectFromDB.publicKey).not.toBe(project3.publicKey)
@@ -1170,7 +1171,7 @@ describe('Project Controller Tests', () => {
         method: 'POST',
         url: `/project/123/fork`,
         payload: {
-          name: 'Forked Project'
+          name: 'Forked Project 2'
         },
         headers: {
           'x-e2e-user-email': user2.email
@@ -1185,7 +1186,7 @@ describe('Project Controller Tests', () => {
         method: 'POST',
         url: `/project/${project2.slug}/fork`,
         payload: {
-          name: 'Forked Project'
+          name: 'Forked Project 3'
         },
         headers: {
           'x-e2e-user-email': user1.email
@@ -1200,7 +1201,7 @@ describe('Project Controller Tests', () => {
         user2,
         project3.slug,
         {
-          name: 'Forked Project'
+          name: 'Forked Project 4'
         }
       )) as Project
 
@@ -1216,7 +1217,7 @@ describe('Project Controller Tests', () => {
         user2,
         project3.slug,
         {
-          name: 'Forked Project',
+          name: 'Forked Project 5',
           workspaceSlug: newWorkspace.slug
         }
       )) as Project
@@ -1226,7 +1227,7 @@ describe('Project Controller Tests', () => {
 
     it('should not be able to create a fork with the same name in a workspace', async () => {
       await projectService.createProject(user2, workspace2.slug, {
-        name: 'Forked Project',
+        name: 'Forked Project 6',
         description: 'Forked Project description',
         storePrivateKey: true,
         accessLevel: ProjectAccessLevel.GLOBAL
@@ -1236,7 +1237,7 @@ describe('Project Controller Tests', () => {
         method: 'POST',
         url: `/project/${project3.slug}/fork`,
         payload: {
-          name: 'Forked Project'
+          name: 'Forked Project 7'
         },
         headers: {
           'x-e2e-user-email': user2.email
@@ -1327,7 +1328,7 @@ describe('Project Controller Tests', () => {
         user2,
         project3.slug,
         {
-          name: 'Forked Project'
+          name: 'Forked Project 8'
         }
       )
 
@@ -1454,7 +1455,7 @@ describe('Project Controller Tests', () => {
         user2,
         project3.slug,
         {
-          name: 'Forked Project'
+          name: 'Forked Project 9'
         }
       )
 
@@ -1644,7 +1645,7 @@ describe('Project Controller Tests', () => {
         user2,
         project3.slug,
         {
-          name: 'Forked Project'
+          name: 'Forked Project 10'
         }
       )
 
@@ -1779,7 +1780,7 @@ describe('Project Controller Tests', () => {
         user2,
         project3.slug,
         {
-          name: 'Forked Project'
+          name: 'Forked Project 11'
         }
       )
 
@@ -1806,7 +1807,7 @@ describe('Project Controller Tests', () => {
 
     it('should be able to fetch all forked projects of a project', async () => {
       await projectService.forkProject(user2, project3.slug, {
-        name: 'Forked Project'
+        name: 'Forked Project 12'
       })
 
       const response = await app.inject({
@@ -1856,31 +1857,31 @@ describe('Project Controller Tests', () => {
           `${Date.now()}: Internal fork WorkspaceId: ${hiddenProject.workspaceId}`
         )
 
-        // // Make a public fork
-        // const publicProject = await projectService.forkProject(
-        //   user2,
-        //   project3.slug,
-        //   {
-        //     name: 'Forked Project'
-        //   }
-        // )
+        // Make a public fork
+        const publicProject = await projectService.forkProject(
+          user2,
+          project3.slug,
+          {
+            name: 'Forked Project 13'
+          }
+        )
 
-        // console.log(
-        //   `${Date.now()}: Public fork WorkspaceId: ${publicProject.workspaceId}`
-        // )
+        console.log(
+          `${Date.now()}: Public fork WorkspaceId: ${publicProject.workspaceId}`
+        )
 
-        // const response = await app.inject({
-        //   method: 'GET',
-        //   url: `/project/${project3.slug}/forks`,
-        //   headers: {
-        //     'x-e2e-user-email': user1.email
-        //   }
-        // })
+        const response = await app.inject({
+          method: 'GET',
+          url: `/project/${project3.slug}/forks`,
+          headers: {
+            'x-e2e-user-email': user1.email
+          }
+        })
 
-        // console.log(`${Date.now()}: Get forks response: ${response.json()}`)
+        console.log(`${Date.now()}: Get forks response: ${response.json()}`)
 
-        // expect(response.statusCode).toBe(200)
-        // expect(response.json().items).toHaveLength(1)
+        expect(response.statusCode).toBe(200)
+        expect(response.json().items).toHaveLength(1)
         console.log(`${Date.now()}: Test finished`)
       } catch (error) {
         console.error(`${Date.now()}: Error: ${error}`)
