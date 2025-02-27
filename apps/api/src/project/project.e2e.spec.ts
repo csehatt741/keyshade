@@ -1237,7 +1237,7 @@ describe('Project Controller Tests', () => {
         method: 'POST',
         url: `/project/${project3.slug}/fork`,
         payload: {
-          name: 'Forked Project 7'
+          name: 'Forked Project 6'
         },
         headers: {
           'x-e2e-user-email': user2.email
