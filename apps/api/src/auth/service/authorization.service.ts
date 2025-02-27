@@ -52,12 +52,23 @@ export class AuthorizationService {
   public async authorizeUserAccessToProject(
     params: AuthorizationParams
   ): Promise<ProjectWithSecrets> {
+    console.log(
+      `${Date.now()}: authorizeUserAccessToProject ${params.entity.slug} - started`
+    )
     const project =
       await this.authorityCheckerService.checkAuthorityOverProject(params)
+
+    console.log(
+      `${Date.now()}: Project acces authorized ${project.name} WorkspaceId: ${project.workspaceId}`
+    )
 
     const workspace = await this.getWorkspace(project.workspaceId)
 
     this.checkUserHasAccessToWorkspace(params.user, workspace)
+
+    console.log(
+      `${Date.now()}: authorizeUserAccessToProject ${params.entity.slug} - finished`
+    )
 
     return project
   }
